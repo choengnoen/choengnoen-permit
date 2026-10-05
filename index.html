@@ -1468,7 +1468,6 @@ tr.route-editable:hover td{background:var(--amber-glow)}
   <div class="view" id="view-routes">
     <div class="card">
       <div class="assets-toolbar" style="justify-content:flex-end">
-        <button class="btn btn-outline btn-sm" id="btnAddRoute" type="button">+ เพิ่มสายทาง</button>
         <div class="assets-updated-badge" id="routesUpdatedHint"></div>
       </div>
       <div class="table-wrap">
@@ -1501,7 +1500,6 @@ tr.route-editable:hover td{background:var(--amber-glow)}
             <select id="zonesFilterStation"></select>
           </div>
         </div>
-        <button class="btn btn-outline btn-sm" id="btnAddZone" type="button">+ เพิ่มเขตพื้นที่</button>
         <div class="assets-updated-badge" id="zonesCountHint"></div>
       </div>
       <div class="table-wrap">
@@ -1529,21 +1527,6 @@ tr.route-editable:hover td{background:var(--amber-glow)}
         <div class="section-title">🗑 ถังขยะ</div>
         <p class="hint">เรื่องที่ถูกลบ กู้คืนได้</p>
         <button class="btn btn-outline" id="btnOpenTrash">เปิดถังขยะ</button>
-      </div>
-      <div class="card" id="cardSeed" style="display:none">
-        <div class="section-title">🌱 สายทางตั้งต้น</div>
-        <p class="hint">เติมสายทาง 8 สายของหมวดฯ (ข้ามสายที่มีอยู่แล้ว)</p>
-        <button class="btn btn-outline" id="btnSeed" type="button">เติมสายทางตั้งต้น</button>
-        <div id="seedLog" class="import-log"></div>
-      </div>
-      <div class="card" id="cardImport" style="display:none">
-        <div class="section-title">⬆ นำเข้าเขตพื้นที่ / สายทาง</div>
-        <p class="hint">ไฟล์ Excel แท็บ zones / routes (ใช้ไฟล์ zones-import.xlsx ชุดเดียวกับงานโจรกรรมได้)</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-          <input type="file" id="importFile" accept=".xlsx" style="max-width:100%">
-          <button class="btn btn-primary" id="btnImport" type="button">เริ่มนำเข้า</button>
-        </div>
-        <div id="importLog"></div>
       </div>
     </div>
     <div class="card">
@@ -2065,42 +2048,6 @@ function onMasterChange(docId){
     return;
   } else return;
   refreshVisibleViews();
-}
-function masterUrl(tab){
-  if (!window.CNMaster) return '#';
-  return (CNMaster.EDIT_URL || '') + (tab ? '#' + tab : '');
-}
-function masterEditLink(tab){
-  return `<a href="${masterUrl(tab)}" target="_blank" rel="noopener">แก้ไขที่ฐานข้อมูลกลาง ↗</a>`;
-}
-function showMasterEditInfo(what, tab){
-  const root = document.getElementById('modalRoot');
-  root.innerHTML = `
-    <div class="modal-backdrop"><div class="modal">
-      <div class="modal-head"><h3>แก้ไข${escapeHtml(what)}</h3><button class="modal-close" id="masterInfoClose" type="button">×</button></div>
-      <p>แก้ได้ที่ฐานข้อมูลกลาง ทุกระบบเห็นข้อมูลใหม่ทันที</p>
-      <div class="actions">
-        <button class="btn btn-outline" id="masterInfoCancel" type="button">ปิด</button>
-        <a class="btn btn-primary" style="text-decoration:none" href="${masterUrl(tab)}" target="_blank" rel="noopener">เปิดฐานข้อมูลกลาง ↗</a>
-      </div>
-    </div></div>`;
-  document.getElementById('masterInfoClose').onclick = () => { root.innerHTML = ''; };
-  document.getElementById('masterInfoCancel').onclick = () => { root.innerHTML = ''; };
-}
-// เขตพื้นที่ของระบบนี้ → ไฟล์ JSON สำหรับนำเข้าที่ฐานข้อมูลกลาง (ใช้ครั้งเดียวตอนย้ายเข้าฐานกลาง)
-function exportZonesForMaster(){
-  if (!ZONES.length) { showToast('ยังไม่มีเขตพื้นที่ให้ส่งออก'); return; }
-  const zones = ZONES.map(z => ({
-    id: z.id, highway: z.highway, kmStart: z.kmStart, kmEnd: z.kmEnd, side: z.side || '',
-    station: z.station, tambon: z.tambon, amphoe: z.amphoe, changwat: z.changwat, moobans: z.moobans || []
-  }));
-  const blob = new Blob([JSON.stringify({ note: 'เขตพื้นที่รับผิดชอบจากระบบงานขออนุญาต — นำเข้าที่ฐานข้อมูลกลาง แท็บ "นำเข้า / ส่งออก"', zones }, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'permit-zones-for-master-' + new Date().toISOString().slice(0, 10) + '.json';
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  showToast('ส่งออกเขตพื้นที่ ' + zones.length + ' เขต — นำไฟล์ไปนำเข้าที่ฐานข้อมูลกลาง');
 }
 
 
@@ -2907,7 +2854,7 @@ function renderRoutesTable(){
   const rowHtml = (r, i) => {
     const off = !isRouteActive(r);
     return `
-    <tr data-idx="${i}" class="${off ? 'route-transferred' : ''}${owner ? ' route-editable' : ''}"${owner ? ' title="ดับเบิลคลิกเพื่อแก้ไข"' : ''}>
+    <tr data-idx="${i}" class="${off ? 'route-transferred' : ''}">
       <td class="mono" style="text-align:center">${escapeHtml(r.highway)}${off ? '<span class="route-badge">โอนแล้ว</span>' : ''}</td>
       <td class="mono" style="text-align:center">${escapeHtml(r.controlNo || '-')}</td>
       <td style="text-align:center">${escapeHtml(r.section || '-')}${off ? `<div class="route-note">${escapeHtml(routeTransferNote(r))}</div>` : ''}</td>
@@ -2942,20 +2889,6 @@ function renderRoutesTable(){
   }
   tbody.innerHTML = html;
 
-  if (owner) {
-    tbody.querySelectorAll('tr[data-idx]').forEach(tr => {
-      tr.addEventListener('dblclick', () => {
-        if (masterRoutesOn) { showMasterEditInfo('ข้อมูลสายทาง', 'routes'); return; }
-        const idx = Number(tr.dataset.idx);
-        openRouteEditModal(rows[idx]);
-      });
-    });
-  }
-  const addBtn = document.getElementById('btnAddRoute');
-  if (addBtn) {
-    addBtn.style.display = owner && !masterRoutesOn ? '' : 'none'; // ใช้ฐานกลางอยู่ → เพิ่มสายทางที่ฐานกลาง
-    addBtn.onclick = () => openRouteEditModal(null);
-  }
   updateRoutesUpdatedHint();
 }
 
@@ -2974,7 +2907,7 @@ function parseKmRangesText(text){
 }
 // โมดัลเพิ่ม/แก้ไขสายทาง 1 สาย — ส่ง route เป็น null เพื่อเปิดในโหมด "เพิ่มสายทางใหม่", ส่ง object เพื่อแก้ไขของเดิม (เฉพาะเจ้าของระบบ)
 // preset = { status: 'transferred' } ใช้ตอนกดมาจากหน้าลบสายทางที่มีเคสอยู่ เพื่อเลือก "โอนแล้ว" ไว้ให้
-function openRouteEditModal(route, preset){
+function openRouteEditModal(route, preset){ return; // ปิดการใช้งาน: สายทางเป็นข้อมูลกลาง ดูได้อย่างเดียว
   const root = document.getElementById('modalRoot');
   const isNew = !route;
   const r = route || { highway:'', controlNo:'', section:'', kmRanges:[], distanceActual:null, distance2Lane:null, asphalt:null, concrete:null, workQty:null, status:'active' };
@@ -3136,7 +3069,7 @@ function updateRoutesUpdatedHint(){
   if (!el) return;
   if (masterRoutesOn) {
     const upd = normalizeDateStr(CNMaster.updatedAt('routes'));
-    el.innerHTML = 'จากฐานข้อมูลกลาง' + (upd ? ' · อัปเดต ' + escapeHtml(formatThaiDate(upd)) : '') + (isPrivileged() ? ' · ' + masterEditLink('routes') : '');
+    el.innerHTML = 'ข้อมูลจากฐานข้อมูลกลาง' + (upd ? ' · อัปเดต ' + escapeHtml(formatThaiDate(upd)) : '');
     return;
   }
   const dates = ROUTES.map(r => r.updatedAt).filter(Boolean).sort();
@@ -3243,7 +3176,7 @@ function renderZonesTable(){
   }
 
   const rowHtml = (z, i) => `
-    <tr data-idx="${i}" class="${owner ? 'route-editable' : ''}"${owner ? ' title="ดับเบิลคลิกเพื่อแก้ไข"' : ''}>
+    <tr data-idx="${i}">
       <td class="mono" style="text-align:center">${escapeHtml(z.highway)}</td>
       <td class="mono" style="text-align:center;white-space:nowrap">${escapeHtml(formatKm(z.kmStart) + ' - ' + formatKm(z.kmEnd))}</td>
       <td style="text-align:center">${escapeHtml(z.side || 'ทั้งสองฝั่ง')}</td>
@@ -3254,38 +3187,15 @@ function renderZonesTable(){
       <td style="text-align:center">${escapeHtml(z.changwat || '-')}</td>
     </tr>`;
   tbody.innerHTML = rows.length ? rows.map(rowHtml).join('')
-    : `<tr><td colspan="8" class="hint" style="text-align:center;padding:20px">${allSorted.length ? 'ไม่มีเขตพื้นที่ตรงกับตัวกรองนี้' : ('ยังไม่มีข้อมูลเขตพื้นที่' + (owner ? ' — กด "+ เพิ่มเขตพื้นที่" เพื่อเริ่มเพิ่ม' : ''))}</td></tr>`;
-  if (owner) {
-    tbody.querySelectorAll('tr[data-idx]').forEach(tr => {
-      tr.addEventListener('dblclick', () => {
-        if (masterZonesOn) { showMasterEditInfo('เขตพื้นที่', 'zones'); return; }
-        openZoneEditModal(rows[Number(tr.dataset.idx)]);
-      });
-    });
-  }
-  const addBtn = document.getElementById('btnAddZone');
-  if (addBtn) {
-    addBtn.style.display = owner && !masterZonesOn ? '' : 'none';
-    addBtn.onclick = () => openZoneEditModal(null);
-    // ฐานกลางอ่านได้แต่ยังไม่มีเขตพื้นที่ → ปุ่มส่งออกเขตพื้นที่ของระบบนี้ไปนำเข้าที่ฐานกลาง (ย้ายครั้งเดียว)
-    let exp = document.getElementById('btnExportZones');
-    if (!exp) {
-      exp = document.createElement('button');
-      exp.id = 'btnExportZones'; exp.type = 'button'; exp.className = 'btn btn-outline btn-sm';
-      exp.textContent = 'ส่งออกเขตพื้นที่ไปฐานกลาง';
-      exp.onclick = exportZonesForMaster;
-      addBtn.insertAdjacentElement('afterend', exp);
-    }
-    exp.style.display = owner && masterReachable && !masterZonesOn && ZONES.length ? '' : 'none';
-  }
+    : `<tr><td colspan="8" class="hint" style="text-align:center;padding:20px">${allSorted.length ? 'ไม่มีเขตพื้นที่ตรงกับตัวกรองนี้' : ('ยังไม่มีข้อมูลเขตพื้นที่' + (owner ? ' — เพิ่มที่ฐานข้อมูลกลางแล้วรีเฟรชหน้านี้' : ''))}</td></tr>`;
   const hint = document.getElementById('zonesCountHint');
   if (hint) {
     const count = rows.length ? (rows.length + (zonesFilterValue ? ' จาก ' + allSorted.length : '') + ' เขตพื้นที่') : '';
-    if (masterZonesOn) hint.innerHTML = escapeHtml(count) + ' · จากฐานข้อมูลกลาง' + (owner ? ' · ' + masterEditLink('zones') : '');
+    if (masterZonesOn) hint.textContent = count + ' · ข้อมูลจากฐานข้อมูลกลาง';
     else hint.textContent = count;
   }
 }
-function openZoneEditModal(zone){
+function openZoneEditModal(zone){ return; // ปิดการใช้งาน: เขตพื้นที่เป็นข้อมูลกลาง ดูได้อย่างเดียว
   const root = document.getElementById('modalRoot');
   const isNew = !zone;
   const z = zone || { id: '', highway: '', kmStart: null, kmEnd: null, side: '', station: '', tambon: '', amphoe: '', changwat: '', moobans: [] };
@@ -3568,7 +3478,8 @@ function updateWhoDisplay(){
   // หน้า "ตั้งค่า" เห็นทุกคนที่ล็อกอิน (ถังขยะ/รายชื่อทีม) — การ์ดจัดการข้อมูลอ้างอิงเห็นเฉพาะเจ้าของระบบ/ผู้ดูแล
   const settingsTab = document.querySelector('.tab-btn[data-view="settings"]');
   if (settingsTab) settingsTab.style.display = recorderName ? '' : 'none';
-  ['cardImport', 'cardSeed'].forEach(id => { const c = document.getElementById(id); if (c) c.style.display = isPrivileged() ? '' : 'none'; });
+  // ข้อมูลกลาง (สายทาง/เขตพื้นที่) แก้ที่ฐานข้อมูลกลางเท่านั้น → ไม่แสดงการ์ดเติมสายทางตั้งต้น/นำเข้าเขตพื้นที่ในระบบนี้
+  ['cardImport', 'cardSeed'].forEach(id => { const c = document.getElementById(id); if (c) c.style.display = 'none'; });
   renderTeamPanel();
   renderRoutesTable();
   renderZonesTable();
@@ -3692,7 +3603,7 @@ function updateZoneFields(fromRemote){
     zoneLastAuto = null;
     refreshMooOptions(null, curMoo);
     if (hw && km !== null) {
-      hint.textContent = ZONES.length ? 'ไม่พบเขตพื้นที่สำหรับ กม. นี้ — กรอก หมู่/ตำบล/อำเภอ เอง' : 'ยังไม่มีข้อมูลเขตพื้นที่ — กรอกเอง หรือให้ผู้ดูแลนำเข้าไฟล์ zones-import.xlsx ที่หน้าตั้งค่า';
+      hint.textContent = ZONES.length ? 'ไม่พบเขตพื้นที่สำหรับ กม. นี้ — กรอก หมู่/ตำบล/อำเภอ เอง' : 'ยังไม่มีข้อมูลเขตพื้นที่ — กรอกเอง หรือเพิ่มเขตที่ฐานข้อมูลกลาง';
     } else {
       hint.textContent = 'เลือกสายทางและกรอก กม. ระบบจะเติม หมู่/ตำบล/อำเภอ ให้อัตโนมัติ และแสดงเรื่องเดิมที่เคยขออนุญาตใกล้จุดนี้';
     }
@@ -4982,47 +4893,6 @@ table.rep th{background:#2c1a55;color:#fff;font-size:9pt;text-align:center;width
   showToast('กำลังเตรียมรายงาน — ในหน้าต่างพิมพ์ให้เลือก "บันทึกเป็น PDF"');
 }
 
-/* ============ เติมสายทาง / นำเข้าเขตพื้นที่ (เจ้าของระบบ/ผู้ดูแล) ============ */
-async function runSeed(){
-  if (!isPrivileged()) { showToast('เฉพาะเจ้าของระบบหรือผู้ดูแลระบบเท่านั้น'); return; }
-  const btn = document.getElementById('btnSeed');
-  const log = document.getElementById('seedLog');
-  log.style.display = 'block';
-  log.textContent = 'กำลังเติมข้อมูล...';
-  btn.disabled = true;
-  try {
-    const report = await FBL.seedRoutes(DEFAULT_ROUTES, m => { log.textContent = m; });
-    log.textContent = '✓ สำเร็จ\n' + report.join('\n');
-    showToast('เติมสายทางตั้งต้นสำเร็จ');
-  } catch (e) {
-    console.error('seed failed', e);
-    log.textContent = '✗ ไม่สำเร็จ: ' + (e && (e.code ? FBL.errorText(e) : e.message) || e);
-  } finally {
-    btn.disabled = false;
-  }
-}
-async function runImport(){
-  if (!isPrivileged()) { showToast('เฉพาะเจ้าของระบบหรือผู้ดูแลระบบเท่านั้น'); return; }
-  const file = document.getElementById('importFile').files[0];
-  if (!file) { showToast('เลือกไฟล์ Excel ก่อน'); return; }
-  const btn = document.getElementById('btnImport');
-  const log = document.getElementById('importLog');
-  log.style.display = 'block';
-  log.textContent = 'กำลังอ่านไฟล์...';
-  btn.disabled = true;
-  try {
-    const buf = await file.arrayBuffer();
-    const report = await FBL.importWorkbook(XLSX, buf, m => { log.textContent = m; });
-    log.textContent = '✓ นำเข้าสำเร็จ\n' + report.join('\n') + '\n\nรันซ้ำได้ปลอดภัย (เขียนทับรายการเดิม ไม่เกิดซ้ำ)';
-    showToast('นำเข้าข้อมูลสำเร็จ');
-  } catch (e) {
-    console.error('import failed', e);
-    log.textContent = '✗ นำเข้าไม่สำเร็จ: ' + FBL.errorText(e);
-  } finally {
-    btn.disabled = false;
-  }
-}
-
 /* ============ เริ่มระบบ ============ */
 async function startAuth(){
   if (!window.FBL) {
@@ -5069,7 +4939,7 @@ async function startApp(){
   renderDashboard();
   startPresenceTracking();
   // ยังไม่มีสายทางเลย + เป็นผู้ดูแล → แนะนำให้เติมสายทางตั้งต้น
-  if (!ROUTES.length && isPrivileged()) showToast('ยังไม่มีข้อมูลสายทาง — ไปที่ "ตั้งค่า" แล้วกด "เติมสายทางตั้งต้น"');
+  if (!ROUTES.length && isPrivileged()) showToast('ยังไม่มีข้อมูลสายทาง — โหลดฐานข้อมูลกลางไม่ได้หรือยังไม่มีสายทาง ตรวจที่ฐานข้อมูลกลาง แล้วรีเฟรชหน้านี้');
 }
 
 function init(){
@@ -5114,8 +4984,6 @@ function init(){
     if (b) runExport(document.getElementById('exportMenu').dataset.kind, b.dataset.scope);
   });
   document.addEventListener('click', closeExportMenu);
-  document.getElementById('btnImport').addEventListener('click', runImport);
-  document.getElementById('btnSeed').addEventListener('click', runSeed);
   document.getElementById('btnOpenTrash').addEventListener('click', openTrashModal);
   renderDashboard();
   startAuth();
