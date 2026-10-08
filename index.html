@@ -996,7 +996,7 @@ tr.route-editable:hover td{background:var(--amber-glow)}
 .hbar .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hbar .nm small{color:var(--ink-mute);margin-left:4px}
 .hbar .mini-track{height:10px}
-.hbar .mini-track i{background:linear-gradient(90deg,#9b85d6,#4b2d86)}
+.hbar .mini-track i{background:linear-gradient(90deg,#5b93bf,#1c4b73)}
 .hbar.hw .mini-track i{background:linear-gradient(90deg,#5b93bf,#1c4b73)}
 .hbar.yr .mini-track i{background:linear-gradient(90deg,#5cbfb1,#1f7a70)}
 .hbar b{text-align:right;font-family:'Kanit',sans-serif;font-weight:600}
@@ -4534,7 +4534,7 @@ function renderDashboard(){
   const pmax = Math.max(1, waitingN, ...pipeRows.map(p => p.n));
   const pEl = document.getElementById('pipeList');
   pEl.innerHTML = pipeRows.map((p, i) => `<div class="pipe-row" data-step="${p.step}"><span class="rank">${i + 2}</span><span>${escapeHtml(p.label)}</span><div class="mini-track"><i style="width:${Math.round(p.n / pmax * 100)}%"></i></div><b class="mono" style="text-align:right">${p.n}</b></div>`).join('')
-    + `<div class="pipe-row" data-wait="1"><span class="rank" style="background:#e8e2f7;color:#4b2d86">⇢</span><span>ส่งแขวงแล้ว รอผลพิจารณา</span><div class="mini-track"><i style="width:${Math.round(waitingN / pmax * 100)}%;background:linear-gradient(90deg,#9b85d6,#4b2d86)"></i></div><b class="mono" style="text-align:right">${waitingN}</b></div>`;
+    + `<div class="pipe-row" data-wait="1"><span class="rank" style="background:#e8e2f7;color:#4b2d86">⇢</span><span>ส่งแขวงแล้ว รอผลพิจารณา</span><div class="mini-track"><i style="width:${Math.round(waitingN / pmax * 100)}%"></i></div><b class="mono" style="text-align:right">${waitingN}</b></div>`;
   pEl.querySelectorAll('.pipe-row').forEach(row => {
     row.onclick = () => row.dataset.wait ? goToFilteredList({ status: 'waiting' }) : goToFilteredList({ status: 'office', step: row.dataset.step });
   });
