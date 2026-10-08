@@ -835,13 +835,13 @@ tr.route-editable:hover td{background:var(--amber-glow)}
 .row-edit-btn:hover{background:var(--navy-900);color:#fff;border-color:var(--navy-900)}
 /* ===== หน้าต่างรายละเอียดเคส (แบบ ข: หัวสีกรมท่า + แผ่นสถานะ + ใบสรุปเงิน) ===== */
 .modal.case-modal{padding:0;max-width:920px}
-.case-modal .cd-hd{background:radial-gradient(700px 240px at 10% -40%,var(--header-1) 0%,var(--header-2) 65%);color:#fff;padding:20px 26px 18px;margin:0;align-items:flex-start}
-.case-modal .cd-hd .cd-lbl{font-size:12.5px;color:#c9b3b3}
+.case-modal .cd-hd{background:radial-gradient(700px 240px at 10% -40%,#1c4b73 0%,#0a2540 65%);color:#fff;padding:20px 26px 18px;margin:0;align-items:flex-start}
+.case-modal .cd-hd .cd-lbl{font-size:12.5px;color:#9db0c4}
 .case-modal .cd-hd h3{font-size:30px;color:#fff;line-height:1.15;margin:0}
-.case-modal .cd-hd .cd-dt{color:#e6d3d3;font-size:16px;font-weight:400;font-family:'Sarabun',sans-serif}
-.case-modal .cd-hd .cd-loc{margin-top:8px;color:#f0dede;font-size:14px}
+.case-modal .cd-hd .cd-dt{color:#c7d3df;font-size:16px;font-weight:400;font-family:'Sarabun',sans-serif}
+.case-modal .cd-hd .cd-loc{margin-top:8px;color:#dbe4ee;font-size:14px}
 .case-modal .cd-hd .modal-close{background:#ffffff26;color:#fff}
-.case-modal .cd-hd .modal-close:hover{background:#fff;color:var(--header-1)}
+.case-modal .cd-hd .modal-close:hover{background:#fff;color:var(--navy-900)}
 .case-modal > .modal-body{background:var(--paper);padding:18px 20px 8px 26px;margin-right:0}
 .cd-foot{display:flex;gap:10px;align-items:center;padding:14px 24px;border-top:1px solid var(--line);background:#fff;flex:none}
 .cd-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
@@ -946,27 +946,24 @@ tr.route-editable:hover td{background:var(--amber-glow)}
 .route-header .who{color:#b3a6d1}
 .tab-btn{color:#a99cc8}
 .tab-btn:hover{color:#ece6ff}
-.case-modal .cd-hd .cd-lbl{color:#ece4ff}
-.case-modal .cd-hd .cd-dt{color:#ddd3f3}
-.case-modal .cd-hd .cd-loc{color:#ece6ff}
 /* ประเภทงานขออนุญาต 7 ประเภท (การ์ดเลือก) */
 .type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:8px}
 .type-card{display:flex;gap:10px;align-items:flex-start;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px;cursor:pointer;font:inherit;color:var(--ink);transition:border-color .15s,background .15s,box-shadow .15s}
 .type-card:hover{border-color:var(--amber-500)}
-.type-card.on{border-color:var(--header-1);background:#f7f4fd;box-shadow:0 0 0 3px rgba(139,111,208,.14)}
+.type-card.on{border-color:var(--navy-800);background:#eef3f8;box-shadow:0 0 0 3px rgba(18,58,94,.14)}
 .type-card .ti{font-size:20px;line-height:1.2;flex:none}
 .type-card b{display:block;font-size:13.5px;line-height:1.35}
 .type-card small{display:block;font-size:12px;color:var(--ink-mute);margin-top:2px}
-.type-tag{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:1px 10px;font-size:12px;font-weight:600;background:#f1ecfb;color:#4f3a8a;white-space:nowrap}
+.type-tag{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:1px 10px;font-size:12px;font-weight:600;background:#e3edf7;color:#0a2540;white-space:nowrap}
 .sec-tag{display:inline-block;border-radius:6px;padding:0 7px;font-size:11.5px;font-weight:600;background:var(--paper-2);color:var(--ink-soft);margin-left:6px;white-space:nowrap}
 .opt-row{display:flex;gap:6px;flex-wrap:wrap}
 .opt-row .em-chip{font-size:13.5px;padding:5px 13px}
 .cond-note{font-size:12.5px;color:var(--ink-mute);margin-top:6px}
 /* เรื่องเดิมที่ขออนุญาตใกล้จุดเดียวกัน */
-.near-box{margin-top:12px;padding:10px 14px;border-radius:12px;background:#f7f4fd;border:1px solid #e0d6f5;font-size:13.5px}
-.near-box b{color:#4f3a8a}
+.near-box{margin-top:12px;padding:10px 14px;border-radius:12px;background:#eef3f8;border:1px solid #d5e1ee;font-size:13.5px}
+.near-box b{color:#0a2540}
 .near-box ul{margin:6px 0 0;padding-left:20px}
-.near-box a{color:#4f3a8a;cursor:pointer;text-decoration:underline}
+.near-box a{color:#0a2540;cursor:pointer;text-decoration:underline}
 /* เช็กลิสต์เอกสาร: แถบความคืบหน้า */
 .doc-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
 .doc-bar{flex:1;min-width:160px;height:8px;border-radius:9px;background:var(--paper-2);overflow:hidden}
@@ -980,13 +977,13 @@ tr.route-editable:hover td{background:var(--amber-glow)}
 .chk-inline{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer}
 .chk-inline input{width:17px;height:17px;accent-color:var(--green)}
 /* สถานะเรื่อง */
-.status-pill.wait{background:#e6def6;color:#4f3a8a}
+.status-pill.wait{background:#e3edf7;color:#0a2540}
 .dl-sub{display:block;font-size:11.5px;color:var(--ink-mute);margin-top:2px;white-space:nowrap}
 .doc-mini{font-variant-numeric:tabular-nums;font-weight:600}
 .doc-mini.ok{color:var(--green)}.doc-mini.bad{color:var(--rust)}
 /* ภาพรวม */
-.stat-card.violet .big{color:#4f3a8a}
-.stat-card.violet.clickable{border-color:#8b6fd0;border-width:1.5px}
+.stat-card.violet .big{color:#0a2540}
+.stat-card.violet.clickable{border-color:var(--navy-800);border-width:1.5px}
 .stat-card.amber.clickable{border-color:var(--amber-500);border-width:1.5px}
 .stat-card.clickable:not(.green):not(.rust):not(.violet):not(.amber){border-color:var(--navy-800);border-width:1.5px}
 .hbar{display:grid;grid-template-columns:minmax(0,1fr) 42% 44px;gap:10px;align-items:center;padding:6px 6px;border-radius:8px;cursor:pointer;font-size:13.5px}
@@ -4498,7 +4495,7 @@ function renderDashboard(){
   const pmax = Math.max(1, waitingN, ...pipeRows.map(p => p.n));
   const pEl = document.getElementById('pipeList');
   pEl.innerHTML = pipeRows.map((p, i) => `<div class="pipe-row" data-step="${p.step}"><span class="rank">${i + 2}</span><span>${escapeHtml(p.label)}</span><div class="mini-track"><i style="width:${Math.round(p.n / pmax * 100)}%"></i></div><b class="mono" style="text-align:right">${p.n}</b></div>`).join('')
-    + `<div class="pipe-row" data-wait="1"><span class="rank" style="background:#e6def6;color:#4f3a8a">⇢</span><span>ส่งแขวงแล้ว รอผลพิจารณา</span><div class="mini-track"><i style="width:${Math.round(waitingN / pmax * 100)}%"></i></div><b class="mono" style="text-align:right">${waitingN}</b></div>`;
+    + `<div class="pipe-row" data-wait="1"><span class="rank" style="background:#e3edf7;color:#0a2540">⇢</span><span>ส่งแขวงแล้ว รอผลพิจารณา</span><div class="mini-track"><i style="width:${Math.round(waitingN / pmax * 100)}%"></i></div><b class="mono" style="text-align:right">${waitingN}</b></div>`;
   pEl.querySelectorAll('.pipe-row').forEach(row => {
     row.onclick = () => row.dataset.wait ? goToFilteredList({ status: 'waiting' }) : goToFilteredList({ status: 'office', step: row.dataset.step });
   });
@@ -4584,9 +4581,9 @@ function renderGuide(){
 /* ============ พิมพ์ (ใบปะหน้าเรื่อง / รายการเอกสารให้ผู้ขอ) ============ */
 const PRINT_CSS = `@page{size:A4 portrait;margin:14mm 14mm 12mm}
 *{box-sizing:border-box}body{font-family:'Sarabun','Tahoma',sans-serif;font-size:11.5pt;color:#182430;margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-h1{font-family:'Kanit','Sarabun',sans-serif;font-size:16pt;margin:0;color:#4f3a8a}.sub0{color:#5c6773;font-size:10pt;margin:2px 0 10px}
-h2{font-family:'Kanit','Sarabun',sans-serif;font-size:12.5pt;margin:14px 0 6px;color:#4f3a8a;border-bottom:1.5px solid #4f3a8a;padding-bottom:2px}
-table{width:100%;border-collapse:collapse;font-size:10.5pt}td,th{border:1px solid #c9ccd1;padding:4px 7px;vertical-align:top}th{background:#f1ecfb;text-align:left;font-weight:600;width:24%}
+h1{font-family:'Kanit','Sarabun',sans-serif;font-size:16pt;margin:0;color:#0a2540}.sub0{color:#5c6773;font-size:10pt;margin:2px 0 10px}
+h2{font-family:'Kanit','Sarabun',sans-serif;font-size:12.5pt;margin:14px 0 6px;color:#0a2540;border-bottom:1.5px solid #0a2540;padding-bottom:2px}
+table{width:100%;border-collapse:collapse;font-size:10.5pt}td,th{border:1px solid #c9ccd1;padding:4px 7px;vertical-align:top}th{background:#e3edf7;text-align:left;font-weight:600;width:24%}
 .box{display:inline-block;width:13px;height:13px;border:1.4px solid #333;margin-right:6px;vertical-align:-2px;text-align:center;line-height:11px;font-size:10pt}
 .docs td{border:0;border-bottom:1px dotted #c9ccd1;padding:5px 4px}.docs td.q{text-align:right;white-space:nowrap;color:#555;width:70px}
 .sign{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:26px;text-align:center;font-size:10.5pt}.sign div{padding-top:30px;border-top:0}
@@ -4840,8 +4837,8 @@ function exportPdf(rows, meta){
   const html = `
 <style>@page{size:A4 landscape;margin:10mm}body{font-size:10pt}
 .tiles{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:10px 0}.tile{border:1px solid #dfe2dd;border-radius:8px;padding:6px 10px;background:#f7f8f6}
-.tile b{display:block;font-family:'Kanit','Sarabun',sans-serif;font-size:15pt;color:#4f3a8a}.tile span{font-size:8.5pt;color:#5c6773}
-table.rep th{background:#4f3a8a;color:#fff;font-size:9pt;text-align:center;width:auto}table.rep td{font-size:9.5pt;padding:4px 6px}thead{display:table-header-group}tr{break-inside:avoid}
+.tile b{display:block;font-family:'Kanit','Sarabun',sans-serif;font-size:15pt;color:#0a2540}.tile span{font-size:8.5pt;color:#5c6773}
+table.rep th{background:#0a2540;color:#fff;font-size:9pt;text-align:center;width:auto}table.rep td{font-size:9.5pt;padding:4px 6px}thead{display:table-header-group}tr{break-inside:avoid}
 .c{text-align:center}.nw{white-space:nowrap}.sub{font-size:8.5pt;color:#7a8592}.scope{font-size:9.5pt;color:#b45309;font-weight:600}</style>
 <h1>รายงานงานขออนุญาตดำเนินการใดๆ ในเขตทางหลวง หมวดทางหลวงเชิงเนิน</h1>
 <div class="sub0">สำนักงานทางหลวงที่ 14 (ชลบุรี) · แขวงทางหลวงระยอง · ส่งออกเมื่อ ${th(thaiLongNow())}</div>
