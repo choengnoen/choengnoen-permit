@@ -488,6 +488,13 @@
     } catch (e) { throw new Error(thErr(e)); }
   };
 
+  /* ---------- รายการร่าง (drafts) — ตาราง "รายการร่าง" ในหน้าบันทึกรายการใหม่ ---------- */
+  FBL.saveDraft = async function (d) {
+    if (!d || !d.id) throw new Error('ไม่มีรหัสร่าง');
+    const ref = db.collection('drafts').doc(String(d.id));
+    await ref.set(clean(Object.assign({}, d, { updatedAt: nowIso(), updatedBy: FBL.user ? FBL.user.name : '' })), { merge: true });
+  };
+
   /* ---------- อ่านข้อมูลแบบ realtime ---------- */
   const subs = {};
   // คืน Promise ที่ resolve เมื่อได้ข้อมูลชุดแรก; การเปลี่ยนแปลงถัดไปเรียก onChange(collection, docs)
@@ -517,11 +524,13 @@
     s.first = new Promise(function (resolve) {
       s.unsub = q.onSnapshot(function (snap) {
         s.docs = snap.docs.map(function (d) { return Object.assign({}, d.data(), { __id: d.id }); });
+        if (FBL.watchFailed) delete FBL.watchFailed[col];
         if (!s.firstDone) { s.firstDone = true; resolve(s.docs); }
         else if (s.onChange) { try { s.onChange(col, s.docs); } catch (e) { console.error(e); } }
       }, function (err) {
         console.error('watch ' + col + ' failed', err);
-        if (FBL.onError && col !== 'presence') FBL.onError(thErr(err));
+        if (col === 'drafts') { FBL.watchFailed = FBL.watchFailed || {}; FBL.watchFailed.drafts = thErr(err); }
+        else if (FBL.onError && col !== 'presence') FBL.onError(thErr(err));
         if (!s.firstDone) { s.firstDone = true; resolve([]); }
       });
     });
