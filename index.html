@@ -1464,6 +1464,7 @@ tr.route-editable:hover td{background:var(--amber-glow)}
           <select id="filterStatus">
             <option value="">ทั้งหมด</option>
             <option value="open">ยังไม่ได้ผลพิจารณา</option>
+            <option value="closed">เสร็จสิ้น (ได้ผล/ยกเลิก)</option>
             <option value="office">กำลังดำเนินการในหมวดฯ</option>
             <option value="waiting">ส่งแขวงแล้ว รอผล</option>
             <option value="approved">อนุญาตแล้ว</option>
@@ -1520,10 +1521,10 @@ tr.route-editable:hover td{background:var(--amber-glow)}
 
     <div class="stat-cards">
       <div class="stat-card" id="cardTotal"><div class="big mono" id="statTotal">0</div><div class="lbl">ขออนุญาตทั้งหมด (เรื่อง)</div></div>
-      <div class="stat-card amber" id="cardOffice"><div class="big mono" id="statOffice">0</div><div class="lbl">ระหว่างดำเนินการ</div></div>
-      <div class="stat-card violet clickable" id="cardWaiting"><div class="big mono" id="statWaiting">0</div><div class="lbl">ส่งแขวงแล้ว รอผลพิจารณา</div></div>
-      <div class="stat-card green clickable" id="cardApproved"><div class="big mono" id="statApproved">0</div><div class="lbl">อนุญาตแล้ว</div></div>
-      <div class="stat-card rust clickable" id="cardOverdue" title="เอกสารครบแล้ว แต่ยังไม่ได้ส่งเรื่องภายในกำหนด 3 วันทำการ"><div class="big mono" id="statOverdue">0</div><div class="lbl">เกินกำหนดส่ง (3 วันทำการ)</div></div>
+      <div class="stat-card amber clickable" id="cardOffice" title="ยังอยู่ในมือหมวดฯ ยังไม่ส่งแขวง"><div class="big mono" id="statOffice">0</div><div class="lbl">รอส่งรายงาน (เรื่อง)</div></div>
+      <div class="stat-card green clickable" id="cardApproved" title="ได้ผลพิจารณาแล้ว (อนุญาต/ไม่อนุญาต) หรือยกเลิก"><div class="big mono" id="statApproved">0</div><div class="lbl">เสร็จสิ้น (เรื่อง)</div></div>
+      <div class="stat-card rust clickable" id="cardOverdue" title="ยังไม่ได้ผลพิจารณา (รอส่งรายงาน + รอผลพิจารณา)"><div class="big mono" id="statOverdue">0</div><div class="lbl">ไม่เสร็จสิ้น (เรื่อง)</div></div>
+      <div class="stat-card violet clickable" id="cardWaiting" title="ส่งแขวงแล้ว รอผลพิจารณา"><div class="big mono" id="statWaiting">0</div><div class="lbl">รอผลพิจารณา (เรื่อง)</div></div>
     </div>
 
     <div class="dash-2" style="margin-top:0">
@@ -4255,7 +4256,8 @@ function recordMatchesList(r, f, seqMap){
   if (f.status) {
     const k = caseStatus(r).key;
     if (f.status === 'open' && isClosed(r)) return false;
-    if (f.status !== 'open' && k !== f.status) return false;
+    if (f.status === 'closed' && !isClosed(r)) return false;
+    if (f.status !== 'open' && f.status !== 'closed' && k !== f.status) return false;
   }
   if (f.step) {
     const st = caseStatus(r);
@@ -4721,12 +4723,13 @@ function renderDashboard(){
   document.getElementById('statTotal').textContent = rows.length;
   document.getElementById('statOffice').textContent = openAll.filter(isInOffice).length;
   document.getElementById('statWaiting').textContent = openAll.filter(isWaitingResult).length;
-  document.getElementById('statApproved').textContent = rows.filter(r => r.result === 'อนุญาต' && !isCancelled(r)).length;
-  const overdue = openAll.filter(r => deadlineInfo(r).key === 'overdue');
-  document.getElementById('statOverdue').textContent = overdue.length;
+  document.getElementById('statApproved').textContent = rows.filter(isClosed).length;
+  const overdue = openAll.filter(r => deadlineInfo(r).key === 'overdue');   // ใช้ต่อในส่วน "เรื่องที่ต้องติดตาม"
+  document.getElementById('statOverdue').textContent = openAll.length;
+  document.getElementById('cardOffice').onclick = () => goToFilteredList({ status: 'office' });
   document.getElementById('cardWaiting').onclick = () => goToFilteredList({ status: 'waiting' });
-  document.getElementById('cardApproved').onclick = () => goToFilteredList({ year: dashYear, status: 'approved' });
-  document.getElementById('cardOverdue').onclick = () => goToFilteredList({ deadline: 'overdue' });
+  document.getElementById('cardApproved').onclick = () => goToFilteredList({ year: dashYear, status: 'closed' });
+  document.getElementById('cardOverdue').onclick = () => goToFilteredList({ status: 'open' });
 
   // เรื่องที่ต้องติดตาม: เกินกำหนด → ใกล้ครบ → ค้างในหมวดนานสุด → รอผลนานสุด
   const today = todayYmd();
