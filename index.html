@@ -4944,7 +4944,7 @@ table{width:100%;border-collapse:collapse;font-size:10.5pt}td,th{border:1px soli
 .docs td{border:0;border-bottom:1px dotted #c9ccd1;padding:5px 4px}.docs td.q{text-align:right;white-space:nowrap;color:#555;width:70px}
 .sign{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:26px;text-align:center;font-size:10.5pt}.sign div{padding-top:30px;border-top:0}
 .muted{color:#6b7480;font-size:9.5pt}.cond{color:#a3660a;font-size:9.5pt}
-.slip{page-break-inside:avoid;border:1.5px solid #0a2540;border-radius:12px;padding:4mm 4.5mm 3.5mm}
+.slip{page-break-inside:avoid;height:100%;border:1.5px solid #0a2540;border-radius:12px;padding:4mm 4.5mm 3.5mm}
 .slip .hr{text-align:center;border-bottom:1px solid #c9ccd1;padding-bottom:5px;margin-bottom:7px}
 .slip .org{font-size:9.5pt;color:#6b7480;margin:0 0 2px!important}
 .slip h1{font-size:15pt}.slip .sub0{font-size:10pt;margin:2px 0 0}
@@ -4954,7 +4954,7 @@ table{width:100%;border-collapse:collapse;font-size:10.5pt}td,th{border:1px soli
 .slip .rw{display:flex;align-items:flex-start;background:#f5f6f4;border-radius:6px;padding:2.5px 8px;margin-bottom:3px;font-size:10pt;line-height:1.32}
 .slip .rw .box{flex:none;margin-top:2px}
 .slip .cond{display:block;font-size:9pt;line-height:1.25}
-.slip ul{margin:5px 0 0;padding-left:18px;font-size:9.3pt}.slip li{margin:1px 0}
+.slip ul{margin:14px 0 0;padding-left:18px;font-size:9.3pt}.slip li{margin:1px 0}.slip li:last-child{margin-bottom:12px}
 .slip .muted{font-size:9pt;margin:4px 0 0}
 .cut{border-top:1.5px dashed #8a929c;margin:3.5mm 0;position:relative;height:0}.cut span{position:absolute;left:0;top:-7px;background:#fff;padding:0 6px;font-size:8.5pt;color:#6b7480}`;
 function printHtmlDoc(title, bodyHtml, extraCss){
@@ -5013,7 +5013,7 @@ function printHandout(t){
       <li>ผู้ขออนุญาตต้องลงนามในเอกสารทุกฉบับ · หมวดฯ จะส่งเรื่องภายใน ${SEND_WORKDAYS} วันทำการ นับจากวันที่เอกสารถูกต้องครบถ้วน</li>
       <li>เจ้าหน้าที่จะนัดหมายผู้ขออนุญาตและผู้เกี่ยวข้องเพื่อตรวจสอบพื้นที่ที่ขออนุญาต</li>
     </ul>
-    <p class="muted">ติดต่อสอบถาม: หมวดทางหลวงเชิงเนิน ........................................</p>
+    <p class="muted">ติดต่อสอบถาม: หมวดทางหลวงเชิงเนิน โทร 038 611 204</p>
   </div>`;
   /* A4 แนวนอน แบ่งซ้าย-ขวาเท่ากัน (148.4mm) ได้ใบ A5 แนวตั้ง 2 ใบ เส้นประตั้งอยู่กึ่งกลางหน้าพอดี */
   printHtmlDoc('รายการเอกสาร_' + t.short, '<div class="sheet"><div class="half lf">' + slip + '</div><div class="half">' + slip + '</div></div>',
