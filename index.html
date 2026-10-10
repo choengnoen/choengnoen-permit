@@ -1519,8 +1519,8 @@ tr.route-editable:hover td{background:var(--amber-glow)}
     <div class="pill-filter" id="dashYearFilter" style="margin-bottom:16px"></div>
 
     <div class="stat-cards">
-      <div class="stat-card clickable" id="cardTotal"><div class="big mono" id="statTotal">0</div><div class="lbl">เรื่องขออนุญาตทั้งหมด</div></div>
-      <div class="stat-card amber clickable" id="cardOffice"><div class="big mono" id="statOffice">0</div><div class="lbl">กำลังดำเนินการในหมวดฯ</div></div>
+      <div class="stat-card" id="cardTotal"><div class="big mono" id="statTotal">0</div><div class="lbl">เรื่องขออนุญาตทั้งหมด</div></div>
+      <div class="stat-card amber" id="cardOffice"><div class="big mono" id="statOffice">0</div><div class="lbl">กำลังดำเนินการในหมวดฯ</div></div>
       <div class="stat-card violet clickable" id="cardWaiting"><div class="big mono" id="statWaiting">0</div><div class="lbl">ส่งแขวงแล้ว รอผลพิจารณา</div></div>
       <div class="stat-card green clickable" id="cardApproved"><div class="big mono" id="statApproved">0</div><div class="lbl">อนุญาตแล้ว</div></div>
       <div class="stat-card rust clickable" id="cardOverdue" title="เอกสารครบแล้ว แต่ยังไม่ได้ส่งเรื่องภายในกำหนด 3 วันทำการ"><div class="big mono" id="statOverdue">0</div><div class="lbl">เกินกำหนดส่ง (3 วันทำการ)</div></div>
@@ -4724,8 +4724,6 @@ function renderDashboard(){
   document.getElementById('statApproved').textContent = rows.filter(r => r.result === 'อนุญาต' && !isCancelled(r)).length;
   const overdue = openAll.filter(r => deadlineInfo(r).key === 'overdue');
   document.getElementById('statOverdue').textContent = overdue.length;
-  document.getElementById('cardTotal').onclick = () => goToFilteredList({ year: dashYear });
-  document.getElementById('cardOffice').onclick = () => goToFilteredList({ status: 'office' });
   document.getElementById('cardWaiting').onclick = () => goToFilteredList({ status: 'waiting' });
   document.getElementById('cardApproved').onclick = () => goToFilteredList({ year: dashYear, status: 'approved' });
   document.getElementById('cardOverdue').onclick = () => goToFilteredList({ deadline: 'overdue' });
