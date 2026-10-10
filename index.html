@@ -1566,7 +1566,6 @@ tr.route-editable:hover td{background:var(--amber-glow)}
     <div class="settings-row">
       <div class="card" id="cardTrash">
         <div class="section-title">🗑 ถังขยะ</div>
-        <p class="hint">เรื่องที่ถูกลบ กู้คืนได้</p>
         <button class="btn btn-outline" id="btnOpenTrash">เปิดถังขยะ</button>
       </div>
     </div>
@@ -2289,7 +2288,7 @@ async function renderDirNotice(){
   if (!document.getElementById('dirNotice')) return;
   const bad = st.missing.length + st.extra.length;
   if (st.ready && !bad) {
-    box.innerHTML = '<p class="hint" style="margin-top:14px">🔒 สมุดชื่อล็อกอิน: ย้ายแล้ว — คนที่ยังไม่ล็อกอินมองไม่เห็นว่าใครเป็นเจ้าของ/ผู้ดูแลระบบ</p>';
+    box.innerHTML = '';
     return;
   }
   const why = !st.ready
