@@ -1702,7 +1702,7 @@ const PERMIT_TYPES = [
     subLabel: 'แบบก่อสร้างมาตรฐาน',
     subs: ['ที่ดินว่างเปล่า/ที่พักอาศัย (แบบ 37/1)', 'อาคารพาณิชย์ (แบบ 37/2)', 'ปั๊มน้ำมัน/แก๊ส (แบบ 37/3)', 'อื่นๆ (ผู้ขอจัดทำแบบก่อสร้างเอง)'],
     docs: [DOC_MEMO, reqDoc('37'), { k: 'map', label: 'แผนผังสังเขปบริเวณที่ขออนุญาต' },
-      { k: 'design', label: 'แบบก่อสร้างตามลักษณะที่ขออนุญาต (แบบมาตรฐาน 37/1, 37/2, 37/3 หรือแบบที่ผู้ขอจัดทำเองครบถ้วน)' },
+      { k: 'design', label: 'แบบก่อสร้างตามลักษณะที่ขออนุญาต' },
       DOC_PHOTO, { k: 'deed', label: 'สำเนาโฉนดที่ดิน' }, DOC_ID,
       { k: 'ownerProxy', label: 'หนังสือมอบอำนาจของเจ้าของที่ดินพร้อมติดอากรแสตมป์', when: r => r.landOwnerSame === 'ไม่ใช่', cond: 'กรณีผู้ขอกับเจ้าของที่ดินไม่ใช่คนเดียวกัน' },
       { k: 'ownerId', label: 'สำเนาบัตรประชาชนและสำเนาทะเบียนบ้านของเจ้าของที่ดิน', when: r => r.landOwnerSame === 'ไม่ใช่', cond: 'กรณีผู้ขอกับเจ้าของที่ดินไม่ใช่คนเดียวกัน' },
@@ -4944,15 +4944,23 @@ table{width:100%;border-collapse:collapse;font-size:10.5pt}td,th{border:1px soli
 .docs td{border:0;border-bottom:1px dotted #c9ccd1;padding:5px 4px}.docs td.q{text-align:right;white-space:nowrap;color:#555;width:70px}
 .sign{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:26px;text-align:center;font-size:10.5pt}.sign div{padding-top:30px;border-top:0}
 .muted{color:#6b7480;font-size:9.5pt}.cond{color:#a3660a;font-size:9.5pt}
-.slip{page-break-inside:avoid}.slip h1{font-size:13.5pt}.slip .sub0{font-size:9pt;margin:1px 0 4px}
-.slip .docs{font-size:9.8pt}.slip .docs td{padding:2.5px 4px}
-.slip ul{margin:4px 0 0;padding-left:18px;font-size:9.3pt}.slip li{margin:1px 0}
-.slip .muted{font-size:8.8pt;margin:3px 0 0}
+.slip{page-break-inside:avoid;border:1.5px solid #0a2540;border-radius:12px;padding:4mm 4.5mm 3.5mm}
+.slip .hr{text-align:center;border-bottom:1px solid #c9ccd1;padding-bottom:5px;margin-bottom:7px}
+.slip .org{font-size:9.5pt;color:#6b7480;margin:0 0 2px!important}
+.slip h1{font-size:15pt}.slip .sub0{font-size:10pt;margin:2px 0 0}
+.slip .opts{border:1px dashed #8a929c;border-radius:8px;padding:5px 9px;margin:0 0 10px;font-size:9.8pt}
+.slip .opts-g{grid-template-columns:1fr}
+.slip .box{border-radius:3px}
+.slip .rw{display:flex;align-items:flex-start;background:#f5f6f4;border-radius:6px;padding:2.5px 8px;margin-bottom:3px;font-size:10pt;line-height:1.32}
+.slip .rw .box{flex:none;margin-top:2px}
+.slip .cond{display:block;font-size:9pt;line-height:1.25}
+.slip ul{margin:5px 0 0;padding-left:18px;font-size:9.3pt}.slip li{margin:1px 0}
+.slip .muted{font-size:9pt;margin:4px 0 0}
 .cut{border-top:1.5px dashed #8a929c;margin:3.5mm 0;position:relative;height:0}.cut span{position:absolute;left:0;top:-7px;background:#fff;padding:0 6px;font-size:8.5pt;color:#6b7480}`;
-function printHtmlDoc(title, bodyHtml){
+function printHtmlDoc(title, bodyHtml, extraCss){
   const html = `<!doctype html><html lang="th"><head><meta charset="utf-8"><title>${escapeHtml(title)}</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@600&family=Sarabun:wght@400;600;700&display=swap">
-<style>${PRINT_CSS}</style></head><body>${bodyHtml}</body></html>`;
+<style>${PRINT_CSS}${extraCss || ''}</style></head><body>${bodyHtml}</body></html>`;
   const iframe = document.createElement('iframe');
   iframe.setAttribute('aria-hidden', 'true');
   iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
@@ -4996,18 +5004,20 @@ function printHandout(t){
   if (!t) return;
   const th = escapeHtml;
   const slip = `<div class="slip">
-    <div class="sub0 org">หมวดทางหลวงเชิงเนิน แขวงทางหลวงระยอง</div>
+    <div class="hr"><div class="org">หมวดทางหลวงเชิงเนิน แขวงทางหลวงระยอง</div>
     <h1>รายการเอกสารประกอบคำขออนุญาต</h1>
-    <div class="sub0">${th(t.no + ' ' + t.label)} · ตามมาตรา ${th(t.section)} · ยื่น ${th(t.sets)}</div>
+    <div class="sub0">${th(t.label)} · ยื่น ${th(t.sets)}</div></div>
     ${t.subs.length ? `<div class="opts"><div class="opts-h">${th(t.subLabel)}</div><div class="opts-g">${t.subs.map(s => '<div class="opt"><span class="box"></span><span>' + th(s) + '</span></div>').join('')}</div></div>` : ''}
-    <table class="docs">${t.docs.filter(d => d.k !== 'memo').map((d, i) => `<tr><td><span class="box"></span>${i + 1}. ${th(d.label)}${d.cond ? ' <span class="cond">(' + th(d.cond) + ')</span>' : ''}</td></tr>`).join('')}</table>
+    <div class="rws">${t.docs.filter(d => d.k !== 'memo').map((d, i) => `<div class="rw"><span class="box"></span><span>${i + 1}. ${th(d.label)}${d.cond ? '<span class="cond">(' + th(d.cond) + ')</span>' : ''}</span></div>`).join('')}</div>
     <ul>
       <li>ผู้ขออนุญาตต้องลงนามในเอกสารทุกฉบับ · หมวดฯ จะส่งเรื่องภายใน ${SEND_WORKDAYS} วันทำการ นับจากวันที่เอกสารถูกต้องครบถ้วน</li>
       <li>เจ้าหน้าที่จะนัดหมายผู้ขออนุญาตและผู้เกี่ยวข้องเพื่อตรวจสอบพื้นที่ที่ขออนุญาต</li>
     </ul>
     <p class="muted">ติดต่อสอบถาม: หมวดทางหลวงเชิงเนิน ........................................</p>
   </div>`;
-  printHtmlDoc('รายการเอกสาร_' + t.short, slip + '<div class="cut"><span>✂ ตัดตามเส้นประ</span></div>' + slip);
+  /* A4 แนวนอน แบ่งซ้าย-ขวาเท่ากัน (148.4mm) ได้ใบ A5 แนวตั้ง 2 ใบ เส้นประตั้งอยู่กึ่งกลางหน้าพอดี */
+  printHtmlDoc('รายการเอกสาร_' + t.short, '<div class="sheet"><div class="half lf">' + slip + '</div><div class="half">' + slip + '</div></div>',
+    '@page{size:A4 landscape;margin:0}body{padding:0}.sheet{display:flex;width:296.8mm;height:209mm}.half{width:148.4mm;height:209mm;padding:7mm 8mm 6mm;overflow:hidden;position:relative}.half.lf{border-right:1.5px dashed #8a929c}.half.lf::after{content:"✂ ตัดตามเส้นประ";position:absolute;right:-8px;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;background:#fff;padding:6px 0;font-size:8.5pt;color:#6b7480}');
 }
 
 /* ============ ส่งออก Excel / PDF (ปุ่มอยู่หน้ารายการ — ใช้ตัวกรองเดียวกับตาราง) ============ */
