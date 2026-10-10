@@ -946,6 +946,23 @@ tr.route-editable:hover td{background:var(--amber-glow)}
 .cd-doc.miss{color:var(--ink-mute)}
 .cd-doc .q{margin-left:auto;font-size:12px;color:var(--ink-mute);white-space:nowrap}
 /* ภาพรวม: เรื่องแยกตามขั้นตอน */
+/* สรุปตามประเภทงานขออนุญาต (ตารางสี ประเภทงาน × สายทาง) */
+.tm-sub{margin:0 0 14px;font-size:12.5px;color:var(--ink-mute)}
+.tm-g{display:grid;gap:6px;align-items:center}
+.tm-ch{text-align:center;line-height:1.25}.tm-ch b{display:block;font-size:13px;font-weight:600;color:var(--navy-900)}.tm-ch span{font-size:10.5px;color:#a0a8b2}
+.tm-nm{display:flex;align-items:center;gap:10px;min-width:0}.tm-nm b{display:block;font-weight:600;font-size:13px}.tm-nm small{font-size:11px;color:#a0a8b2}
+.tm-ic{width:32px;height:32px;border-radius:9px;background:#eef4fb;display:flex;align-items:center;justify-content:center;font-size:16px;flex:none}
+.tm-cl{height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.tm-cl[data-n]:not([data-n="0"]){cursor:pointer}.tm-cl[data-n]:not([data-n="0"]):hover{outline:2px solid #1f5f9e;outline-offset:1px}
+.tm-cl.e{background:#f6f7f5;color:#d0d4da;font-weight:400}
+.tm-cl.l1{background:#e3eefa;color:#1d4f80}.tm-cl.l2{background:#b9d5ee;color:#12385c}.tm-cl.l3{background:#6ea6d9;color:#fff}.tm-cl.l4{background:#1f5f9e;color:#fff}
+.tm-tt{text-align:right;font-weight:600;font-size:15px;color:var(--navy-900);padding-right:2px;font-variant-numeric:tabular-nums}
+.tm-tt[data-t]{cursor:pointer}.tm-tt[data-t]:hover{text-decoration:underline}
+.tm-sum{border-top:1px solid var(--line);padding-top:10px;margin-top:8px}.tm-sc{text-align:center;font-weight:600;font-size:14px;color:var(--navy-900)}
+.tm-lg{display:flex;gap:6px;align-items:center;justify-content:flex-end;margin-top:12px;font-size:11px;color:#a0a8b2}
+.tm-lg i{display:inline-block;width:18px;height:10px;border-radius:3px}
+.tm-lg i.l1{background:#e3eefa}.tm-lg i.l2{background:#b9d5ee}.tm-lg i.l3{background:#6ea6d9}.tm-lg i.l4{background:#1f5f9e}
+@media(max-width:720px){.tm-g{gap:4px}.tm-nm small,.tm-ch span{display:none}.tm-ic{display:none}}
 .pipe-row{display:grid;grid-template-columns:26px minmax(0,1fr) 38% 34px;gap:10px;align-items:center;padding:6px 6px;border-radius:8px;cursor:pointer;font-size:13.5px}
 .pipe-row:hover{background:var(--paper)}
 .pipe-row .rank{background:var(--amber-glow);color:var(--amber-deep)}
@@ -1538,21 +1555,11 @@ tr.route-editable:hover td{background:var(--amber-glow)}
       </div>
     </div>
 
-    <div class="dash-2">
-      <div class="card">
-        <div class="section-title" style="justify-content:space-between"><span>เรื่องที่ต้องติดตาม</span><span class="follow-head-sub" id="followSub"></span></div>
-        <div id="followList"></div>
-      </div>
-      <div class="card">
-        <div class="section-title" style="justify-content:space-between"><span>เรื่องค้างแยกตามขั้นตอน</span><span class="follow-head-sub">กดเพื่อดูรายการ</span></div>
-        <div id="pipeList"></div>
-      </div>
-    </div>
-
     <div class="dash-2" style="grid-template-columns:1fr">
-      <div class="card">
-        <div class="section-title">แยกตามประเภทงานขออนุญาต</div>
-        <div id="typeBars"></div>
+      <div class="card" id="typeMatrixCard">
+        <div class="section-title" style="margin-bottom:2px">สรุปตามประเภทงานขออนุญาต</div>
+        <p class="tm-sub">จำนวนเรื่องแยกตามสายทาง · ยิ่งเข้มยิ่งมาก · กดช่องเพื่อดูรายการ</p>
+        <div id="typeMatrix"></div>
       </div>
     </div>
 
@@ -4712,6 +4719,37 @@ function hbarHtml(rows, cls){
   const max = Math.max(...rows.map(r => r.n), 1);
   return rows.map((r, i) => `<div class="hbar ${cls || ''}" data-i="${i}"><span class="nm">${r.label}</span><div class="mini-track"><i style="width:${Math.round(r.n / max * 100)}%"></i></div><b class="mono">${r.n}</b></div>`).join('');
 }
+/* กล่อง "สรุปตามประเภทงานขออนุญาต": ตารางสี ประเภทงาน × สายทาง (ตามตัวกรองปีงบ)
+   คอลัมน์ = 4 สายทางที่มีเรื่องมากสุด (เติมจากสายทางในระบบถ้ายังไม่ครบ) + "อื่นๆ" เมื่อมีสายทางที่เหลือ */
+function renderTypeMatrix(rows){
+  const el = document.getElementById('typeMatrix');
+  if (!el) return;
+  if (!rows.length) { el.innerHTML = '<p class="hint">ยังไม่มีข้อมูล</p>'; return; }
+  const cnt = {};
+  rows.forEach(r => { const h = String(r.highway || ''); if (h) cnt[h] = (cnt[h] || 0) + 1; });
+  let cols = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a] || Number(a) - Number(b)).slice(0, 4);
+  Array.from(ROUTE_HIGHWAYS).sort((a, b) => Number(a) - Number(b)).forEach(h => { if (cols.length < 4 && cols.indexOf(h) < 0) cols.push(h); });
+  cols.sort((a, b) => Number(a) - Number(b));
+  const hasOther = rows.some(r => cols.indexOf(String(r.highway)) < 0);
+  const cell = (t, h) => rows.filter(r => r.permitType === t.key && (h === null ? cols.indexOf(String(r.highway)) < 0 : String(r.highway) === h)).length;
+  const grid = PERMIT_TYPES.map(t => ({ t, cells: cols.map(h => cell(t, h)).concat(hasOther ? [cell(t, null)] : []), total: rows.filter(r => r.permitType === t.key).length }));
+  const max = Math.max(1, ...grid.map(g => Math.max(...g.cells)));
+  const lv = n => n === 0 ? 'e' : n / max <= .25 ? 'l1' : n / max <= .5 ? 'l2' : n / max <= .75 ? 'l3' : 'l4';
+  const ncol = cols.length + (hasOther ? 1 : 0);
+  const tpl = `minmax(150px,1.5fr) repeat(${ncol},minmax(0,1fr)) 46px`;
+  const colTot = cols.map(h => rows.filter(r => String(r.highway) === h).length).concat(hasOther ? [rows.filter(r => cols.indexOf(String(r.highway)) < 0).length] : []);
+  const head = `<span></span>` + cols.map(h => `<div class="tm-ch"><b>ทล.${escapeHtml(h)}</b><span>${escapeHtml(highwaySection(h) || '')}</span></div>`).join('')
+    + (hasOther ? '<div class="tm-ch"><b>อื่นๆ</b><span>สายรอง</span></div>' : '') + '<span class="tm-tt" style="font-size:11.5px;font-weight:400;color:#a0a8b2">รวม</span>';
+  const body = grid.map(g => `<div class="tm-nm"><div class="tm-ic">${g.t.icon}</div><div><b>${escapeHtml(g.t.short)}</b><small>${escapeHtml(g.t.no)}</small></div></div>`
+    .concat(g.cells.map((n, i) => `<div class="tm-cl ${lv(n)}" data-t="${g.t.key}" data-h="${i < cols.length ? escapeHtml(cols[i]) : ''}" data-n="${n}">${n || '·'}</div>`).join(''))
+    .concat(`<div class="tm-tt" data-t="${g.t.key}">${g.total}</div>`)).join('');
+  const foot = `<b style="font-weight:500;font-size:12.5px;color:#6b7480">รวมต่อสายทาง</b>` + colTot.map(n => `<span class="tm-sc">${n}</span>`).join('') + `<span class="tm-tt">${rows.length}</span>`;
+  el.innerHTML = `<div class="tm-g" style="grid-template-columns:${tpl}">${head}${body}</div>`
+    + `<div class="tm-g tm-sum" style="grid-template-columns:${tpl}">${foot}</div>`
+    + `<div class="tm-lg">น้อย<i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i>มาก</div>`;
+  el.querySelectorAll('.tm-cl').forEach(c => { if (Number(c.dataset.n)) c.onclick = () => goToFilteredList({ year: dashYear, type: c.dataset.t, hw: c.dataset.h }); });
+  el.querySelectorAll('.tm-tt[data-t]').forEach(c => { c.onclick = () => goToFilteredList({ year: dashYear, type: c.dataset.t }); });
+}
 function renderDashboard(){
   renderDashYearFilter();
   const inYear = r => dashYear === 'ทั้งหมด' || String(r.fiscalYear) === String(dashYear);
@@ -4721,52 +4759,13 @@ function renderDashboard(){
   document.getElementById('statOffice').textContent = openAll.filter(isInOffice).length;
   document.getElementById('statWaiting').textContent = openAll.filter(isWaitingResult).length;
   document.getElementById('statApproved').textContent = rows.filter(isClosed).length;
-  const overdue = openAll.filter(r => deadlineInfo(r).key === 'overdue');   // ใช้ต่อในส่วน "เรื่องที่ต้องติดตาม"
   document.getElementById('statOverdue').textContent = openAll.length;
   document.getElementById('cardOffice').onclick = () => goToFilteredList({ status: 'office' });
   document.getElementById('cardWaiting').onclick = () => goToFilteredList({ status: 'waiting' });
   document.getElementById('cardApproved').onclick = () => goToFilteredList({ year: dashYear, status: 'closed' });
   document.getElementById('cardOverdue').onclick = () => goToFilteredList({ status: 'open' });
 
-  // เรื่องที่ต้องติดตาม: เกินกำหนด → ใกล้ครบ → ค้างในหมวดนานสุด → รอผลนานสุด
-  const today = todayYmd();
-  const follow = openAll.map(r => ({ r, rank: urgencyRank(r), age: daysBetween(r.sentDate || r.dateReceived, today) || 0 }))
-    .sort((a, b) => a.rank - b.rank || b.age - a.age);
-  const seqMap = computeSeqMap();
-  document.getElementById('followSub').textContent = 'ยังไม่ได้ผล ' + openAll.length + ' เรื่อง';
-  const fEl = document.getElementById('followList');
-  const nearCount = openAll.filter(r => deadlineInfo(r).key === 'near').length;
-  const waitLong = openAll.filter(r => isWaitingResult(r) && daysBetween(r.sentDate, today) > 30).length;
-  const docsMissing = openAll.filter(r => isInOffice(r) && docProgress(r).missing.length).length;
-  fEl.innerHTML = `
-    <div class="fstat-grid">
-      <div class="fstat ${overdue.length ? 'bad' : 'ok'}"><b>${overdue.length}</b><span>เกินกำหนดส่ง</span></div>
-      <div class="fstat ${nearCount ? 'acc' : 'ok'}"><b>${nearCount}</b><span>ใกล้ครบกำหนด</span></div>
-      <div class="fstat ${docsMissing ? 'acc' : ''}"><b>${docsMissing}</b><span>เอกสารยังไม่ครบ</span></div>
-      <div class="fstat ${waitLong ? 'acc' : ''}"><b>${waitLong}</b><span>รอผลเกิน 30 วัน</span></div>
-    </div>`;   // ไม่แสดงรายการเรื่องค้าง
-  fEl.querySelectorAll('.follow-row').forEach(row => { row.onclick = () => openCaseDetailModal(row.dataset.id); });
-  const more = document.getElementById('followMoreLink');
-  if (more) more.onclick = () => goToFilteredList({ status: 'open' });
-
-  // เรื่องค้างแยกตามขั้นตอน (ในหมวดฯ) + รอผลจากแขวง
-  const counts = STEPS.map(() => 0);
-  openAll.filter(isInOffice).forEach(r => { const i = caseStatus(r).nextIndex; if (i >= 1 && i <= SENT_STEP) counts[i]++; });
-  const pipeRows = STEPS.slice(1, SENT_STEP + 1).map((s, j) => ({ label: s.wait, n: counts[j + 1], step: j + 1 }));
-  const waitingN = openAll.filter(isWaitingResult).length;
-  const pmax = Math.max(1, waitingN, ...pipeRows.map(p => p.n));
-  const pEl = document.getElementById('pipeList');
-  pEl.innerHTML = pipeRows.map((p, i) => `<div class="pipe-row" data-step="${p.step}"><span class="rank">${i + 2}</span><span>${escapeHtml(p.label)}</span><div class="mini-track"><i style="width:${Math.round(p.n / pmax * 100)}%"></i></div><b class="mono" style="text-align:right">${p.n}</b></div>`).join('')
-    + `<div class="pipe-row" data-wait="1"><span class="rank" style="background:#e3edf7;color:#0a2540">⇢</span><span>ส่งแขวงแล้ว รอผลพิจารณา</span><div class="mini-track"><i style="width:${Math.round(waitingN / pmax * 100)}%"></i></div><b class="mono" style="text-align:right">${waitingN}</b></div>`;
-  pEl.querySelectorAll('.pipe-row').forEach(row => {
-    row.onclick = () => row.dataset.wait ? goToFilteredList({ status: 'waiting' }) : goToFilteredList({ status: 'office', step: row.dataset.step });
-  });
-
-  // แยกตามประเภทงาน
-  const typeRows = PERMIT_TYPES.map(t => ({ label: `${t.icon} ${escapeHtml(t.no + ' ' + t.short)}<small>ม.${escapeHtml(t.section)}</small>`, n: rows.filter(r => r.permitType === t.key).length, key: t.key }));
-  const tEl = document.getElementById('typeBars');
-  tEl.innerHTML = hbarHtml(typeRows);
-  tEl.querySelectorAll('.hbar').forEach(el => { el.onclick = () => goToFilteredList({ year: dashYear, type: typeRows[Number(el.dataset.i)].key }); });
+  try { renderTypeMatrix(rows); } catch (e) { console.error('type matrix render failed', e); }
 
   // แยกตามสายทาง
   const byHw = {};
