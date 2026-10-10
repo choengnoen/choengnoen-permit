@@ -1028,7 +1028,7 @@ tr.route-editable:hover td{background:var(--amber-glow)}
 #dashYearFilter button.active:hover,.year-dropdown-btn.active:hover{filter:brightness(1.06);color:#fff}
 /* ===== แท็บ "เอกสาร": ผังกระบวนงาน + เอกสารที่ต้องใช้ ===== */
 /* ผังวงเวียน (rb-*): ถนนเทา รถเหลือง สีประจำระบบใช้ที่ไอคอน — ตัวแปร --c1/--c2 ตั้งจาก theme ใน renderFlowRoundabout */
-.rb-wrap{max-width:680px;margin:0 auto}
+.rb-wrap{width:100%}
 .rb-head{display:flex;align-items:center;gap:10px;padding:0 2px 10px;border-bottom:1px solid var(--line,#dfe2dd);flex-wrap:wrap}
 .rb-hic{display:inline-flex;color:var(--c1)}
 .rb-t{font-size:15px;font-weight:600;color:var(--ink,#182430)}
@@ -1037,7 +1037,7 @@ tr.route-editable:hover td{background:var(--amber-glow)}
 .rb-lg .c{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--c1);vertical-align:-1px;margin-right:5px}
 .rb-lg .d{display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--c2);box-shadow:0 0 0 1.5px #fff,0 0 0 2.5px var(--c2);transform:rotate(45deg);vertical-align:0;margin:0 7px 0 3px}
 .rb-lg .w{display:inline-block;width:16px;border-top:2px dashed #f07a1f;vertical-align:3px;margin-right:5px}
-.rb-box{position:relative;overflow:hidden;height:570px}
+.rb-box{position:relative;overflow:hidden;height:570px;max-width:680px;margin:0 auto}
 .rb-cv{position:absolute;left:0;top:0;width:680px;height:570px;transform-origin:top left}
 .rb-bg{position:absolute;left:0;top:0;pointer-events:none;z-index:1}
 .rb-stw{position:absolute;width:48px;height:48px;display:flex;align-items:center;justify-content:center;z-index:3}
@@ -1563,10 +1563,9 @@ tr.route-editable:hover td{background:var(--amber-glow)}
   <div class="view" id="view-guide">
     <div class="card">
       <div id="guideFlow"></div>
-      <p class="hint" style="margin:10px 0 0">ส่งเรื่องภายใน <b>3 วันทำการ</b> นับตั้งแต่เอกสารถูกต้องและครบถ้วน · ผู้ขออนุญาตต้องลงนามในเอกสารทุกฉบับ · ลงข้อมูลในระบบ <b>http://e-services.doh.go.th/dohweb/officer/</b></p>
     </div>
     <div class="card">
-      <div class="section-title" style="justify-content:space-between"><span>เอกสารที่ต้องใช้แยกตามประเภทงาน</span><span class="follow-head-sub">กด 🖨 เพื่อพิมพ์รายการเอกสารให้ผู้ขออนุญาต</span></div>
+      <div class="section-title"><span>เอกสารประกอบงาน</span></div>
       <div id="guideTypes"></div>
     </div>
   </div>
@@ -4870,7 +4869,7 @@ function renderFlowRoundabout(host, opt){
   });
   const hasLoop = st.some(s => s.loop);
   host.innerHTML = `<div class="rb-wrap" style="--c1:${th[0]};--c2:${th[1]}">
-    <div class="rb-head"><span class="rb-hic">${rbSvg(th[2], 20)}</span><span class="rb-t">${esc(opt.title)}</span><span class="rb-p">ผังกระบวนงานสถิติหมวดการทาง</span>
+    <div class="rb-head"><span class="rb-hic">${rbSvg(th[2], 20)}</span><span class="rb-t">${esc(opt.title)}</span>
       <span class="rb-lg"><span><span class="c"></span>ธุรการ</span><span><span class="d"></span>หัวหน้า</span>${hasLoop ? '<span><span class="w"></span>วนแก้ไข</span>' : ''}</span></div>
     <div class="rb-box"><div class="rb-cv">${svg}${h}</div></div></div>`;
   /* ย่อผังให้พอดีหน้าจอแคบ (ผังออกแบบไว้กว้าง 680px) */
@@ -4917,8 +4916,8 @@ function renderGuide(){
   el.innerHTML = PERMIT_TYPES.map(t => `
     <div class="cd-card" style="margin-bottom:10px">
       <div class="cd-sec" style="justify-content:space-between;flex-wrap:wrap">
-        <span>${t.icon} ${escapeHtml(t.no + ' ' + t.label)} <span class="sec-tag">มาตรา ${escapeHtml(t.section)}</span><span class="sec-tag">${escapeHtml(t.sets)}</span></span>
-        <span style="display:flex;gap:6px"><button type="button" class="btn btn-outline btn-sm" data-handout="${t.key}">🖨 พิมพ์ให้ผู้ขอ</button><button type="button" class="btn btn-primary btn-sm" data-newtype="${t.key}">＋ บันทึกเรื่องประเภทนี้</button></span>
+        <span>${t.icon} ${escapeHtml(t.no + ' ' + t.label)}</span>
+        <span style="display:flex;gap:6px"><button type="button" class="btn btn-outline btn-sm" data-handout="${t.key}">🖨 พิมพ์ให้ผู้ขอ</button></span>
       </div>
       ${t.subs.length ? `<div class="hint" style="margin:-4px 0 8px">${escapeHtml(t.subLabel)}: ${t.subs.map(escapeHtml).join(' · ')}</div>` : ''}
       ${stepsHtml}
@@ -4928,12 +4927,6 @@ function renderGuide(){
       ${metaHtml}
     </div>`).join('');
   el.querySelectorAll('[data-handout]').forEach(b => b.onclick = () => printHandout(typeOf(b.dataset.handout)));
-  el.querySelectorAll('[data-newtype]').forEach(b => b.onclick = () => {
-    if (editingId) clearForm();
-    setV('f_permitType', b.dataset.newtype);
-    renderFormDynamic();
-    document.querySelector('.tab-btn[data-view="form"]').click();
-  });
 }
 
 /* ============ พิมพ์ (ใบปะหน้าเรื่อง / รายการเอกสารให้ผู้ขอ) ============ */
@@ -4945,7 +4938,12 @@ table{width:100%;border-collapse:collapse;font-size:10.5pt}td,th{border:1px soli
 .box{display:inline-block;width:13px;height:13px;border:1.4px solid #333;margin-right:6px;vertical-align:-2px;text-align:center;line-height:11px;font-size:10pt}
 .docs td{border:0;border-bottom:1px dotted #c9ccd1;padding:5px 4px}.docs td.q{text-align:right;white-space:nowrap;color:#555;width:70px}
 .sign{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:26px;text-align:center;font-size:10.5pt}.sign div{padding-top:30px;border-top:0}
-.muted{color:#6b7480;font-size:9.5pt}.cond{color:#a3660a;font-size:9.5pt}`;
+.muted{color:#6b7480;font-size:9.5pt}.cond{color:#a3660a;font-size:9.5pt}
+.slip{page-break-inside:avoid}.slip h1{font-size:13.5pt}.slip .sub0{font-size:9pt;margin:1px 0 4px}
+.slip .docs{font-size:9.8pt}.slip .docs td{padding:2.5px 4px}
+.slip ul{margin:4px 0 0;padding-left:18px;font-size:9.3pt}.slip li{margin:1px 0}
+.slip .muted{font-size:8.8pt;margin:3px 0 0}
+.cut{border-top:1.5px dashed #8a929c;margin:3.5mm 0;position:relative;height:0}.cut span{position:absolute;left:0;top:-7px;background:#fff;padding:0 6px;font-size:8.5pt;color:#6b7480}`;
 function printHtmlDoc(title, bodyHtml){
   const html = `<!doctype html><html lang="th"><head><meta charset="utf-8"><title>${escapeHtml(title)}</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@600&family=Sarabun:wght@400;600;700&display=swap">
@@ -4988,24 +4986,22 @@ function printCoverSheet(rec){
   printHtmlDoc('ใบปะหน้า_' + caseLabelOf(rec), body);
   showToast('กำลังเตรียมใบปะหน้า — เลือกเครื่องพิมพ์ หรือ "บันทึกเป็น PDF"');
 }
-// รายการเอกสารที่ผู้ขอต้องเตรียม (แจกผู้ขอ)
+// รายการเอกสารที่ผู้ขอต้องเตรียม (แจกผู้ขอ) — พิมพ์ 2 ใบเหมือนกันต่อ A4 หนึ่งแผ่น มีเส้นประให้ตัด
 function printHandout(t){
   if (!t) return;
   const th = escapeHtml;
-  const body = `
+  const slip = `<div class="slip">
     <h1>รายการเอกสารประกอบคำขออนุญาต</h1>
-    <div class="sub0">${th(t.no + ' ' + t.label)} · ตามมาตรา ${th(t.section)} · หมวดทางหลวงเชิงเนิน แขวงทางหลวงระยอง</div>
-    ${t.subs.length ? `<p>${th(t.subLabel)}: ${t.subs.map(s => '<span class="box"></span>' + th(s)).join('&nbsp;&nbsp; ')}</p>` : ''}
-    <table class="docs">${t.docs.filter(d => d.k !== 'memo').map((d, i) => `<tr><td><span class="box"></span>${i + 1}. ${th(d.label)}${d.cond ? ' <span class="cond">(' + th(d.cond) + ')</span>' : ''}</td><td class="q">${th(t.sets)}</td></tr>`).join('')}</table>
-    <h2>ข้อควรทราบ</h2>
+    <div class="sub0">${th(t.no + ' ' + t.label)} · ตามมาตรา ${th(t.section)} · ยื่น ${th(t.sets)} · หมวดทางหลวงเชิงเนิน แขวงทางหลวงระยอง</div>
+    ${t.subs.length ? `<p style="margin:2px 0 4px;font-size:9.3pt">${th(t.subLabel)}: ${t.subs.map(s => '<span class="box"></span>' + th(s)).join('&nbsp;&nbsp; ')}</p>` : ''}
+    <table class="docs">${t.docs.filter(d => d.k !== 'memo').map((d, i) => `<tr><td><span class="box"></span>${i + 1}. ${th(d.label)}${d.cond ? ' <span class="cond">(' + th(d.cond) + ')</span>' : ''}</td></tr>`).join('')}</table>
     <ul>
-      <li>ผู้ขออนุญาตต้องลงนามในเอกสารทุกฉบับ</li>
-      <li>ยื่นเอกสารจำนวน ${th(t.sets)} — หมวดฯ จะส่งเรื่องภายใน ${SEND_WORKDAYS} วันทำการ นับจากวันที่เอกสารถูกต้องครบถ้วน</li>
+      <li>ผู้ขออนุญาตต้องลงนามในเอกสารทุกฉบับ · หมวดฯ จะส่งเรื่องภายใน ${SEND_WORKDAYS} วันทำการ นับจากวันที่เอกสารถูกต้องครบถ้วน</li>
       <li>เจ้าหน้าที่จะนัดหมายผู้ขออนุญาตและผู้เกี่ยวข้องเพื่อตรวจสอบพื้นที่ที่ขออนุญาต</li>
-      <li>กรณีมอบอำนาจ ต้องมีหนังสือมอบอำนาจติดอากรแสตมป์ พร้อมสำเนาบัตรประชาชนและทะเบียนบ้านของผู้มอบอำนาจ</li>
     </ul>
-    <p class="muted">ติดต่อสอบถาม: หมวดทางหลวงเชิงเนิน ........................................</p>`;
-  printHtmlDoc('รายการเอกสาร_' + t.short, body);
+    <p class="muted">ติดต่อสอบถาม: หมวดทางหลวงเชิงเนิน ........................................</p>
+  </div>`;
+  printHtmlDoc('รายการเอกสาร_' + t.short, slip + '<div class="cut"><span>✂ ตัดตามเส้นประ</span></div>' + slip);
 }
 
 /* ============ ส่งออก Excel / PDF (ปุ่มอยู่หน้ารายการ — ใช้ตัวกรองเดียวกับตาราง) ============ */
