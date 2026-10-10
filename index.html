@@ -1026,6 +1026,40 @@ tr.route-editable:hover td{background:var(--amber-glow)}
 #dashYearFilter button,.year-dropdown-btn{font-family:'Kanit',sans-serif;font-weight:600}
 #dashYearFilter button.active,.year-dropdown-btn.active{background:linear-gradient(135deg,var(--amber-500),var(--amber));color:#fff;border-color:transparent;box-shadow:0 4px 12px -2px rgba(224,98,15,.4)}
 #dashYearFilter button.active:hover,.year-dropdown-btn.active:hover{filter:brightness(1.06);color:#fff}
+/* ===== แท็บ "เอกสาร": ผังกระบวนงาน + เอกสารที่ต้องใช้ ===== */
+.gd-flow{max-width:760px;margin:4px auto 0}
+.gd-step{display:grid;grid-template-columns:minmax(110px,210px) 1fr;gap:14px;align-items:center}
+.gd-who{text-align:right;font-weight:600;font-size:13.5px;color:var(--ink-soft)}
+.gd-who b{font-family:'Kanit',sans-serif;color:var(--amber-deep)}
+.gd-shape{justify-self:center;text-align:center;font-size:14px;line-height:1.45;background:#fff;border:1.5px solid var(--ink);padding:10px 16px;min-width:230px;max-width:100%}
+.gd-shape.box{border-radius:6px}
+.gd-shape.oval{border-radius:999px;padding:12px 26px}
+.gd-shape.dia{position:relative;border:0;background:transparent;padding:26px 44px;min-width:210px}
+.gd-shape.dia::before,.gd-shape.dia::after{content:'';position:absolute;z-index:0;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.gd-shape.dia::before{inset:0;background:var(--ink)}
+.gd-shape.dia::after{inset:1.5px;background:#fff}
+.gd-shape.dia span{position:relative;z-index:1}
+.gd-arrow{display:grid;grid-template-columns:minmax(110px,210px) 1fr;gap:14px;font-size:12.5px;color:var(--ink-mute);padding:3px 0}
+.gd-arrow div{grid-column:2;display:flex;justify-content:center;gap:26px;align-items:center}
+.gd-arrow i{font-style:normal;color:var(--ink);font-size:16px;line-height:1}
+.gd-sub{font-size:13px;color:var(--ink-mute);margin:0 0 8px}
+.gd-tag{display:inline-block;border-radius:6px;padding:0 7px;font-size:11.5px;font-weight:600;background:var(--paper-2);color:var(--ink-soft);margin-left:6px}
+.gd-h{font-family:'Kanit',sans-serif;font-weight:600;font-size:13.5px;color:var(--ink);margin:12px 0 4px}
+.gd-ol{margin:0;padding-left:22px;font-size:13.5px;line-height:1.6}
+.gd-ol ul{margin:2px 0 4px;padding-left:18px;color:var(--ink-soft)}
+.gd-ul{margin:0;padding-left:20px;font-size:13.5px;line-height:1.6}
+.gd-doc{display:flex;gap:8px;align-items:baseline;font-size:13.5px;padding:4px 0;border-bottom:1px dotted var(--line)}
+.gd-doc:last-child{border-bottom:0}
+.gd-doc .ic{flex:none;width:20px;text-align:right;color:var(--ink-mute)}
+.gd-doc .q{margin-left:auto;font-size:12.5px;color:var(--ink-mute);white-space:nowrap}
+.gd-doc small{color:var(--amber-deep)}
+.gd-meta{display:flex;gap:10px 22px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--ink-soft)}
+.gd-meta b{color:var(--ink)}
+@media(max-width:560px){.gd-step,.gd-arrow{grid-template-columns:1fr;gap:4px}.gd-who{text-align:left}.gd-arrow div{grid-column:1}.gd-shape{min-width:0;width:100%}}
+
+/* ชิปตัวกรองที่เลือก (สายทาง/pill) ให้เหมือนปุ่ม "ทุกปีงบประมาณ" */
+.hw-tab-filter button.active,.pill-filter button.active{font-family:'Kanit',sans-serif;font-weight:600;box-shadow:0 4px 12px -2px rgba(224,98,15,.4)}
+.hw-tab-filter button.active:hover,.pill-filter button.active:hover{filter:brightness(1.06);color:#fff}
 /* ===== ปุ่มไอคอน "คัดลอกเป็นรูป" + ปุ่ม × ในหัวหน้าต่างรายละเอียดเคส (วงกลมเทาอ่อน ไอคอนเส้นเรียบ) ===== */
 .cd-hd-actions{display:flex;align-items:center;gap:8px;flex:none}
 .cd-copy,.case-modal .cd-hd .modal-close{width:40px;height:40px;border:0;border-radius:50%;padding:0;display:inline-grid;place-items:center;background:#eef0f6;color:#2b3445;cursor:pointer;transition:background .15s,color .15s,transform .1s}
@@ -1090,7 +1124,7 @@ tr.route-editable:hover td{background:var(--amber-glow)}
     <button class="tab-btn active" data-view="dash">ภาพรวม</button>
     <button class="tab-btn" data-view="list">รายการขออนุญาต</button>
     <button class="tab-btn" data-view="form">＋ รายการใหม่</button>
-    <button class="tab-btn" data-view="guide">คู่มือ/เอกสารที่ต้องใช้</button>
+    <button class="tab-btn" data-view="guide">เอกสาร</button>
     <button class="tab-btn" data-view="routes">ข้อมูลสายทาง</button>
     <button class="tab-btn" data-view="zones">ข้อมูลเขตพื้นที่</button>
     <button class="tab-btn" data-view="settings">ตั้งค่า</button>
@@ -4688,13 +4722,7 @@ function renderDashboard(){
       <div class="fstat ${nearCount ? 'acc' : 'ok'}"><b>${nearCount}</b><span>ใกล้ครบกำหนด</span></div>
       <div class="fstat ${docsMissing ? 'acc' : ''}"><b>${docsMissing}</b><span>เอกสารยังไม่ครบ</span></div>
       <div class="fstat ${waitLong ? 'acc' : ''}"><b>${waitLong}</b><span>รอผลเกิน 30 วัน</span></div>
-    </div>` + (follow.length ? follow.slice(0, 6).map(({ r, age }) => `
-      <div class="follow-row" data-id="${escapeHtml(r.id)}">
-        <div class="f-main"><b>${escapeHtml(caseLabelOf(r, seqMap))} · ${escapeHtml(typeShort(r.permitType))}</b> <span style="color:var(--ink-mute)">· ${escapeHtml(applicantText(r) || '-')}</span>
-          <div class="f-sub">ทล.${escapeHtml(r.highway)} กม.${escapeHtml(kmText(r))} · ${escapeHtml(caseStatus(r).text)}</div></div>
-        <div class="f-right">${isInOffice(r) ? deadlinePill(r) : `<span class="age-pill ${age > 60 ? 'bad' : age > 30 ? 'warn' : ''}">รอผล ${age} วัน</span>`}</div>
-      </div>`).join('') + (follow.length > 6 ? `<div class="follow-foot"><span>แสดง 6 จาก ${follow.length} เรื่อง</span><a class="link-btn" id="followMoreLink">ดูทั้งหมด →</a></div>` : '')
-    : '<p class="hint" style="color:var(--green)">✓ ไม่มีเรื่องค้าง</p>');
+    </div>`;   // ไม่แสดงรายการเรื่องค้าง
   fEl.querySelectorAll('.follow-row').forEach(row => { row.onclick = () => openCaseDetailModal(row.dataset.id); });
   const more = document.getElementById('followMoreLink');
   if (more) more.onclick = () => goToFilteredList({ status: 'open' });
@@ -4770,7 +4798,32 @@ function renderDashboard(){
 /* ============ คู่มือ / เอกสารที่ต้องใช้ ============ */
 function renderGuide(){
   const flow = document.getElementById('guideFlow');
-  flow.innerHTML = `<ul class="tl">${STEPS.map((s, i) => `<li class="done"><span class="tl-dot">${i + 1}</span><div class="tl-name">${escapeHtml(s.label)}</div><div class="tl-sub">${escapeHtml(s.who)}${s.desc ? ' · ' + escapeHtml(s.desc) : ''}</div></li>`).join('')}</ul>`;
+  // ผังตามเอกสาร "กระบวนงานขออนุญาตดำเนินการใดๆ ในเขตทาง": วงรี = เริ่ม/จบ, ข้าวหลามตัด = ตรวจสอบพิจารณา
+  const FLOW_SHAPES = ['oval', 'box', 'dia', 'box', 'box', 'box', 'oval'];
+  const FLOW_TEXT = ['รับเอกสาร', 'ตรวจเอกสารหลักฐาน', 'ตรวจสอบ\nพิจารณา', 'จัดทำบันทึกพร้อมเอกสาร', 'ลงนาม', 'ออกเลข/ทำสำเนา/ลงสมุดส่ง/นำส่ง\nลงข้อมูลในระบบ ' + E_SERVICE_URL, 'เก็บสำเนาเอกสาร'];
+  flow.innerHTML = `<div class="gd-flow">${STEPS.map((s, i) => `${i ? '<div class="gd-arrow"><div><i>↓</i></div></div>' : ''}<div class="gd-step"><div class="gd-who"><b>${i + 1}.</b> ${escapeHtml(s.who)}</div><div class="gd-shape ${FLOW_SHAPES[i] || 'box'}"><span>${escapeHtml(FLOW_TEXT[i] || s.label).replace(/\n/g, '<br>')}</span></div></div>`).join('')}</div>`;
+  // รายละเอียดการปฏิบัติงาน / แบบฟอร์ม / การจัดเก็บ ตามเอกสาร (ขั้นตอนเหมือนกันทุกประเภท)
+  const GUIDE_STEPS = [
+    'รับเรื่องและตรวจสอบเอกสารหลักฐาน โดยผู้ขออนุญาตจะต้องลงนามในเอกสารทุกฉบับ',
+    'จัดเตรียมเอกสาร เสนอหัวหน้าหมวดการทาง เพื่อพิจารณา',
+    'นัดหมายผู้ขออนุญาตและผู้เกี่ยวข้องในการตรวจสอบพื้นที่ที่ขออนุญาต',
+    'เมื่อทำการตรวจสอบพื้นที่แล้วเสร็จ จัดทำบันทึกข้อความ พร้อมเอกสารหลักฐาน เสนอหัวหน้าหมวดการทางลงนาม เพื่อนำเสนอผู้บังคับบัญชาต่อไป',
+    'ลงระบบการดำเนินการใดๆ ในเขตทางหลวงที่ ' + E_SERVICE_URL
+  ];
+  const GUIDE_KEEP = ['จัดเก็บเฉพาะบันทึกนำส่งเรื่อง 1 ฉบับ', 'เมื่อได้รับอนุญาต จะได้รับสำเนาเอกสารการอนุญาต พร้อมหลักฐานของผู้ขอส่งให้ 1 ชุด เพื่อเก็บไว้เป็นหลักฐาน', 'ในกรณีที่ไม่ได้รับอนุญาต จะได้รับสำเนาหนังสือแจ้งผู้ขอ เพื่อเก็บไว้ 1 ชุด'];
+  const MEMO = 'บันทึกข้อความ', MAPF = 'แปลนแผนที่สังเขปแสดงสายทาง เส้นทางข้างเคียง จุดที่ก่อสร้าง';
+  const XS = 'รูปตัดแสดงระยะผิวจราจร ไหล่ทาง เขตทางหลวง';
+  const GUIDE_FORMS = {
+    access: [MEMO, 'คำขออนุญาตตามมาตรา 37', 'แผนผังสังเขปบริเวณที่ขออนุญาต', 'แบบก่อสร้างมาตรฐานตามลักษณะที่ขออนุญาต — ที่ดินว่างเปล่า/ที่พักอาศัย แบบที่ 37/1(1) หรือ (2) · อาคารพาณิชย์ แบบที่ 37/2(1) หรือ (2) · ปั๊มน้ำมัน แก๊ส แบบที่ 37/3(1) หรือ (2)', 'หากนอกเหนือจากทางเข้า-ออกทั้ง 3 ประเภท หรือต่างจากมาตรฐานที่กำหนด ให้ผู้ขอจัดทำแบบก่อสร้างขึ้นเอง แต่ต้องมีรูปแบบครบถ้วน'],
+    sign: [MEMO, 'คำขออนุญาตตามมาตรา 47', MAPF, XS],
+    drainConnect: [MEMO, 'คำขออนุญาตตามมาตรา 39/1 ฉบับแก้ไขเพิ่มเติม', MAPF, 'รูปตัดแสดงระยะจุดก่อสร้างพร้อมแสดงการเชื่อมต่อท่อ ระยะผิวจราจร ไหล่ทาง เขตทางหลวง'],
+    lighting: [MEMO, 'คำขออนุญาตตามมาตรา 47', MAPF, XS + ' และแสดงระยะการติดตั้งอุปกรณ์ต่างๆ'],
+    structure: [MEMO, 'คำขออนุญาตตามมาตรา 47', MAPF, XS + ' และแสดงระยะในการดำเนินการ', 'กรณีขอก่อสร้างศาลาทางหลวง ต้องใช้แบบมาตรฐานของกรมทางหลวง (MD-301 ถึง MD-311)', 'แบบหนังสืออุทิศศาลาทางหลวงให้เป็นสมบัติของกรมทางหลวง'],
+    drainage: [MEMO, 'คำขออนุญาตตามมาตรา 47', MAPF, XS + ' และแสดงระยะในการดำเนินการ'],
+    utility: [MEMO, 'คำขออนุญาตตามมาตรา 48 และ 56', MAPF, XS + ' และแสดงระยะในการดำเนินการ']
+  };
+  const stepsHtml = `<div class="gd-h" style="margin-top:0">รายละเอียดการปฏิบัติงาน</div><ol class="gd-ol">${GUIDE_STEPS.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ol>`;
+  const metaHtml = `<div class="gd-h">กำหนดส่งรายงาน</div><div style="font-size:13.5px">ภายใน <b>${SEND_WORKDAYS} วัน</b> นับตั้งแต่เอกสารถูกต้องและครบถ้วน</div><div class="gd-h">รูปแบบการจัดเก็บสำเนา</div><ol class="gd-ol">${GUIDE_KEEP.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ol>`;
   const el = document.getElementById('guideTypes');
   el.innerHTML = PERMIT_TYPES.map(t => `
     <div class="cd-card" style="margin-bottom:10px">
@@ -4779,7 +4832,11 @@ function renderGuide(){
         <span style="display:flex;gap:6px"><button type="button" class="btn btn-outline btn-sm" data-handout="${t.key}">🖨 พิมพ์ให้ผู้ขอ</button><button type="button" class="btn btn-primary btn-sm" data-newtype="${t.key}">＋ บันทึกเรื่องประเภทนี้</button></span>
       </div>
       ${t.subs.length ? `<div class="hint" style="margin:-4px 0 8px">${escapeHtml(t.subLabel)}: ${t.subs.map(escapeHtml).join(' · ')}</div>` : ''}
+      ${stepsHtml}
+      <div class="gd-h">แบบฟอร์ม/เอกสารที่เกี่ยวข้อง</div><ul class="gd-ul">${(GUIDE_FORMS[t.key] || []).map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ul>
+      <div class="gd-h">เอกสารหลักฐานที่ต้องจัดส่ง</div>
       ${t.docs.map((d, i) => `<div class="cd-doc"><span class="ic">${i + 1}.</span><span>${escapeHtml(d.label)}${d.cond ? ' <small style="color:var(--amber-deep)">(' + escapeHtml(d.cond) + ')</small>' : ''}</span><span class="q">${escapeHtml(docQty(t, d))}</span></div>`).join('')}
+      ${metaHtml}
     </div>`).join('');
   el.querySelectorAll('[data-handout]').forEach(b => b.onclick = () => printHandout(typeOf(b.dataset.handout)));
   el.querySelectorAll('[data-newtype]').forEach(b => b.onclick = () => {
