@@ -1482,27 +1482,17 @@ tr.route-editable:hover td{background:var(--amber-glow)}
           <select id="filterStatus">
             <option value="">ทั้งหมด</option>
             <option value="open">ยังไม่ได้ผลพิจารณา</option>
-            <option value="closed">เสร็จสิ้น (ได้ผล/ยกเลิก)</option>
             <option value="office">กำลังดำเนินการในหมวดฯ</option>
             <option value="waiting">ส่งแขวงแล้ว รอผล</option>
+            <option value="closed">เสร็จสิ้น (อนุญาต/ไม่อนุญาต/ยกเลิก)</option>
             <option value="approved">อนุญาตแล้ว</option>
             <option value="denied">ไม่อนุญาต</option>
             <option value="cancel">ยกเลิก/ถอนเรื่อง</option>
-            <optgroup label="ตรวจสอบข้อมูล">
-              <option value="issues:yes">⚠️ ต้องตรวจสอบ</option>
-              <option value="issues:docs">📄 เอกสารยังไม่ครบ</option>
-            </optgroup>
+            <option value="issues:docs">📄 เอกสารยังไม่ครบ</option>
           </select>
         </div>
         <div class="field">
-          <label style="text-align:center">กำหนดส่ง</label>
-          <select id="filterDeadline">
-            <option value="">ทั้งหมด</option>
-            <option value="overdue">เกินกำหนด (ยังไม่ส่ง)</option>
-            <option value="near">ใกล้ครบกำหนด</option>
-            <option value="late">ส่งช้ากว่ากำหนด</option>
-            <option value="ontime">ส่งทันกำหนด</option>
-          </select>
+          <button type="button" class="btn btn-outline btn-sm" id="btnClearFilters" title="ล้างตัวกรองทั้งหมด">ล้างตัวกรอง</button>
         </div>
       </div>
       <div class="list-count" id="listCount"></div>
@@ -3638,9 +3628,33 @@ function populateYearFilter(){
 function populateStaticFilters(){
   document.getElementById('filterType').innerHTML = '<option value="">ทั้งหมด</option>' +
     PERMIT_TYPES.map(t => `<option value="${t.key}">${escapeHtml(t.no + ' ' + t.short)}</option>`).join('');
-  // "ขั้นตอนที่รอ" รวมอยู่ในช่องสถานะ (ค่า step:N) เพื่อให้แถบกรองอยู่แถวเดียวเหมือนระบบอื่น
-  document.getElementById('filterStatus').insertAdjacentHTML('beforeend', '<optgroup label="กำลังดำเนินการในหมวดฯ — รอขั้นตอน">' +
-    STEPS.slice(1, SENT_STEP + 1).map((s, i) => `<option value="step:${i + 1}">${escapeHtml(s.wait)}</option>`).join('') + '</optgroup>');
+}
+// ตัวกรองหน้ารายการ: ใส่จำนวนเรื่องกำกับ — ประเภทงาน/ทล. แสดงเฉพาะที่มีเรื่องอยู่ (ค่าที่เลือกอยู่จะไม่หาย)
+function populateListFilterCounts(){
+  const fill = (id, items) => {
+    const sel = document.getElementById(id);
+    const prev = sel.value;
+    if (prev && !items.some(i => i[0] === prev)) items.push([prev, id === 'filterHighway' ? 'ทล.' + prev + ' (0)' : (typeShort(prev) + ' (0)')]);
+    sel.innerHTML = '<option value="">ทั้งหมด</option>' + items.map(i => `<option value="${escapeHtml(String(i[0]))}">${escapeHtml(i[1])}</option>`).join('');
+    sel.value = prev;
+  };
+  const tc = {}, hc = {};
+  records.forEach(r => { if (r.permitType) tc[r.permitType] = (tc[r.permitType] || 0) + 1; if (r.highway) hc[r.highway] = (hc[r.highway] || 0) + 1; });
+  fill('filterType', PERMIT_TYPES.filter(t => tc[t.key]).map(t => [t.key, t.no + ' ' + t.short + ' (' + tc[t.key] + ')']));
+  fill('filterHighway', Object.keys(hc).sort((a, b) => parseFloat(a) - parseFloat(b) || a.localeCompare(b)).map(h => [h, 'ทล.' + h + ' (' + hc[h] + ')']));
+  const n = { '': records.length, open: 0, office: 0, waiting: 0, closed: 0, approved: 0, denied: 0, cancel: 0, 'issues:docs': 0 };
+  records.forEach(r => {
+    const k = caseStatus(r).key;
+    if (isClosed(r)) n.closed++; else n.open++;
+    if (n[k] !== undefined) n[k]++;
+    if (!isCancelled(r) && docProgress(r).missing.length) n['issues:docs']++;
+  });
+  const base = { '': 'ทั้งหมด', open: 'ยังไม่ได้ผลพิจารณา', office: 'กำลังดำเนินการในหมวดฯ', waiting: 'ส่งแขวงแล้ว รอผล', closed: 'เสร็จสิ้น (อนุญาต/ไม่อนุญาต/ยกเลิก)', approved: 'อนุญาตแล้ว', denied: 'ไม่อนุญาต', cancel: 'ยกเลิก/ถอนเรื่อง', 'issues:docs': '📄 เอกสารยังไม่ครบ' };
+  [...document.getElementById('filterStatus').options].forEach(o => {
+    if (!(o.value in base)) return;
+    const t = base[o.value] + (o.value ? ' (' + n[o.value] + ')' : '');
+    if (o.textContent !== t) o.textContent = t;
+  });
 }
 
 /* ===== เขตพื้นที่: เลือก ทล. + กม. + ด้าน แล้วเติม หมู่/ตำบล/อำเภอ/จังหวัด ให้อัตโนมัติ (แก้เองได้) ===== */
@@ -4218,9 +4232,7 @@ function listFilterState(){
   return {
     q: thaiDigits(document.getElementById('searchBox').value).trim().toLowerCase(),
     year: v('filterYear'), type: v('filterType'), hw: v('filterHighway'),
-    status: /^(step|issues):/.test(v('filterStatus')) ? '' : v('filterStatus'),
-    step: v('filterStatus').startsWith('step:') ? v('filterStatus').slice(5) : '',
-    deadline: v('filterDeadline'),
+    status: v('filterStatus').startsWith('issues:') ? '' : v('filterStatus'),
     issues: v('filterStatus').startsWith('issues:') ? v('filterStatus').slice(7) : ''
   };
 }
@@ -4248,7 +4260,6 @@ function matchesQuery(r, q, seqMap){
   });
 }
 function recordMatchesList(r, f, seqMap){
-  if (f.issues === 'yes' && !recordIssues(r).length) return false;
   if (f.issues === 'docs' && (isCancelled(r) || !docProgress(r).missing.length)) return false;
   if (f.year && String(r.fiscalYear) !== f.year) return false;
   if (f.type && r.permitType !== f.type) return false;
@@ -4259,16 +4270,11 @@ function recordMatchesList(r, f, seqMap){
     if (f.status === 'closed' && !isClosed(r)) return false;
     if (f.status !== 'open' && f.status !== 'closed' && k !== f.status) return false;
   }
-  if (f.step) {
-    const st = caseStatus(r);
-    if (st.key !== 'office' || String(st.nextIndex) !== f.step) return false;
-  }
-  if (f.deadline && deadlineInfo(r).key !== f.deadline) return false;
   return matchesQuery(r, f.q, seqMap);
 }
 function hasListFilters(){
   const f = listFilterState();
-  return !!(f.q || f.year || f.type || f.hw || f.status || f.step || f.deadline || f.issues);
+  return !!(f.q || f.year || f.type || f.hw || f.status || f.issues);
 }
 function getListRecords(scope){
   if (scope === 'all') return records.slice();
@@ -4281,10 +4287,8 @@ function describeListFilters(){
   if (f.year) out.push('ปีงบประมาณ ' + f.year);
   if (f.type) out.push('ประเภท: ' + typeShort(f.type));
   if (f.hw) out.push('ทล.' + f.hw);
-  if (f.status) out.push('สถานะ: ' + selText('filterStatus'));
-  if (f.step) out.push('ขั้นตอน: ' + selText('filterStatus'));
-  if (f.deadline) out.push('กำหนดส่ง: ' + selText('filterDeadline'));
-  if (f.issues) out.push(selText('filterStatus'));
+  if (f.status) out.push('สถานะ: ' + selText('filterStatus').replace(/\s*\(\d+\)$/, ''));
+  if (f.issues) out.push(selText('filterStatus').replace(/\s*\(\d+\)$/, ''));
   if (f.q) out.push('คำค้น "' + document.getElementById('searchBox').value.trim() + '"');
   return out;
 }
@@ -4299,6 +4303,7 @@ function urgencyRank(r){
 }
 function renderTable(){
   populateYearFilter();
+  populateListFilterCounts();
   const seqMap = computeSeqMap();
   const f = listFilterState();
   const rows = records.filter(r => recordMatchesList(r, f, seqMap));
@@ -4329,8 +4334,7 @@ function goToFilteredList(opts){
   setV('filterYear', opts.year && opts.year !== 'ทั้งหมด' ? String(opts.year) : '');
   setV('filterType', opts.type || '');
   setV('filterHighway', opts.hw || '');
-  setV('filterStatus', opts.step ? 'step:' + opts.step : opts.issues ? 'issues:' + opts.issues : (opts.status || ''));
-  setV('filterDeadline', opts.deadline || '');
+  setV('filterStatus', opts.issues ? 'issues:' + opts.issues : (opts.status || ''));
   setV('searchBox', '');
   document.getElementById('searchWrap').classList.remove('has-text');
   renderTable();
@@ -5317,8 +5321,14 @@ function init(){
     renderTable();
     document.getElementById('searchBox').focus();
   });
-  ['filterYear', 'filterType', 'filterHighway', 'filterStatus', 'filterDeadline'].forEach(id =>
+  ['filterYear', 'filterType', 'filterHighway', 'filterStatus'].forEach(id =>
     document.getElementById(id).addEventListener('change', renderTable));
+  document.getElementById('btnClearFilters').addEventListener('click', () => {
+    ['filterYear', 'filterType', 'filterHighway', 'filterStatus'].forEach(id => setV(id, ''));
+    setV('searchBox', '');
+    document.getElementById('searchWrap').classList.remove('has-text');
+    renderTable();
+  });
   document.getElementById('btnExportXlsx').addEventListener('click', (e) => { e.stopPropagation(); openExportMenu('xlsx'); });
   document.getElementById('btnExportPdf').addEventListener('click', (e) => { e.stopPropagation(); openExportMenu('pdf'); });
   document.getElementById('exportMenu').addEventListener('click', (e) => {
