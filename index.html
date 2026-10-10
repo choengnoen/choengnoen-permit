@@ -1529,6 +1529,17 @@ tr.route-editable:hover td{background:var(--amber-glow)}
 
     <div class="dash-2" style="margin-top:0">
       <div class="card">
+        <div class="section-title">ขออนุญาตแยกตามสายทาง</div>
+        <div id="hwBars"></div>
+      </div>
+      <div class="card" id="trendCard">
+        <div class="section-title">รายปีงบประมาณ</div>
+        <div id="yearBars"></div>
+      </div>
+    </div>
+
+    <div class="dash-2">
+      <div class="card">
         <div class="section-title" style="justify-content:space-between"><span>เรื่องที่ต้องติดตาม</span><span class="follow-head-sub" id="followSub"></span></div>
         <div id="followList"></div>
       </div>
@@ -1538,27 +1549,13 @@ tr.route-editable:hover td{background:var(--amber-glow)}
       </div>
     </div>
 
-    <div class="dash-2">
+    <div class="dash-2" style="grid-template-columns:1fr">
       <div class="card">
         <div class="section-title">แยกตามประเภทงานขออนุญาต</div>
         <div id="typeBars"></div>
       </div>
-      <div class="card">
-        <div class="section-title">ประสิทธิภาพการส่งเรื่อง</div>
-        <div id="perfBox"></div>
-      </div>
     </div>
 
-    <div class="dash-2">
-      <div class="card">
-        <div class="section-title">แยกตามสายทาง</div>
-        <div id="hwBars"></div>
-      </div>
-      <div class="card" id="trendCard">
-        <div class="section-title">จำนวนเรื่องรายปีงบประมาณ</div>
-        <div id="yearBars"></div>
-      </div>
-    </div>
   </div>
 
   <!-- ===================== GUIDE (คู่มือ) ===================== -->
@@ -4793,31 +4790,6 @@ function renderDashboard(){
     trend.style.display = 'none';
   }
 
-  // ประสิทธิภาพการส่งเรื่อง (ตามตัวกรองปีงบ)
-  const sent = rows.filter(r => r.sentDate && r.docCheckedDate && !isCancelled(r));
-  const ontime = sent.filter(r => deadlineInfo(r).key === 'ontime').length;
-  const avgWd = sent.length ? (sent.reduce((s, r) => s + Math.max(0, workdaysBetween(r.docCheckedDate, r.sentDate)), 0) / sent.length) : null;
-  const approved = rows.filter(r => r.result === 'อนุญาต').length, denied = rows.filter(r => r.result === 'ไม่อนุญาต').length;
-  const decided = rows.filter(r => isDecided(r) && r.dateReceived && r.resultDate);
-  const avgDays = decided.length ? decided.reduce((s, r) => s + Math.max(0, daysBetween(r.dateReceived, r.resultDate)), 0) / decided.length : null;
-  const eMissing = rows.filter(r => r.sentDate && !r.eServiceDone && !isCancelled(r)).length;
-  document.getElementById('perfBox').innerHTML = `
-    <div class="perf-grid">
-      <div class="fstat ${sent.length && ontime === sent.length ? 'ok' : 'acc'}"><b>${sent.length ? Math.round(ontime / sent.length * 100) + '%' : '-'}</b><span>ส่งทันกำหนด ${SEND_WORKDAYS} วันทำการ (${ontime}/${sent.length})</span></div>
-      <div class="fstat"><b>${avgWd === null ? '-' : avgWd.toFixed(1)}</b><span>เฉลี่ยวันทำการ เอกสารครบ→ส่ง</span></div>
-      <div class="fstat ok"><b>${approved}</b><span>อนุญาต${approved + denied ? ' (' + Math.round(approved / (approved + denied) * 100) + '%)' : ''}</span></div>
-      <div class="fstat ${denied ? 'bad' : ''}"><b>${denied}</b><span>ไม่อนุญาต</span></div>
-    </div>
-    <div class="perf-grid" style="margin-top:8px">
-      <div class="fstat"><b>${avgDays === null ? '-' : Math.round(avgDays)}</b><span>เฉลี่ยวัน รับเรื่อง→ได้ผล</span></div>
-      <div class="fstat ${eMissing ? 'bad' : 'ok'}"><b>${eMissing}</b><span>ส่งแล้วยังไม่ลง e-services</span></div>
-      <div class="fstat"><b>${rows.filter(isCancelled).length}</b><span>ยกเลิก/ถอนเรื่อง</span></div>
-      <div class="fstat ${rows.filter(r => recordIssues(r).length).length ? 'acc' : 'ok'}"><b>${rows.filter(r => recordIssues(r).length).length}</b><span>ข้อมูลต้องตรวจสอบ</span></div>
-    </div>`;
-  const pb = document.getElementById('perfBox');
-  const tiles = pb.querySelectorAll('.fstat');
-  if (tiles[5]) { tiles[5].style.cursor = 'pointer'; tiles[5].onclick = () => goToFilteredList({ year: dashYear, issues: 'yes' }); }
-  if (tiles[7]) { tiles[7].style.cursor = 'pointer'; tiles[7].onclick = () => goToFilteredList({ year: dashYear, issues: 'yes' }); }
 }
 
 /* ===== ผังกระบวนงานแบบวงเวียน (โค้ดชุดเดียวกันทุกระบบ) =====
