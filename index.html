@@ -281,6 +281,7 @@ h1,h2,h3,.display{font-family:'Kanit',sans-serif;font-weight:700}
 
  
 .table-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-bottom:14px}
+#view-list .table-toolbar .field select{max-width:150px}
 .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--card)}
 #assetsTable{table-layout:fixed;width:100%}
 #assetsTable th:nth-child(1),#assetsTable td:nth-child(1){width:auto}
@@ -1461,7 +1462,7 @@ tr.route-editable:hover td{background:var(--amber-glow)}
       <div class="table-toolbar">
         <div class="assets-search-wrap" id="searchWrap" style="min-width:260px;flex:1">
           <span class="assets-search-icon">🔍</span>
-          <input type="text" id="searchBox" name="list-filter" autocomplete="off" placeholder="ค้นหา ชื่อผู้ขอ, บริษัท, เบอร์โทร, เลขที่เรื่อง, เลขหนังสือ, กม., ตำบล…">
+          <input type="text" id="searchBox" name="list-filter" autocomplete="off" placeholder="ค้นหา ชื่อผู้ขอ, บริษัท, เบอร์โทร, เลขที่เรื่อง, กม." title="เคล็ดลับ: พิมพ์ กม. เช่น 225+500 เพื่อหาเรื่องที่อยู่ใกล้จุดนั้น (±200 ม.) · พิมพ์ได้หลายคำคั่นด้วยเว้นวรรค เช่น 3574 ป้าย">
           <button type="button" class="assets-search-clear" id="searchClear" title="ล้างคำค้นหา">✕</button>
         </div>
         <div class="field">
@@ -1490,10 +1491,6 @@ tr.route-editable:hover td{background:var(--amber-glow)}
           </select>
         </div>
         <div class="field">
-          <label style="text-align:center">ขั้นตอนที่รอ</label>
-          <select id="filterStep"><option value="">ทั้งหมด</option></select>
-        </div>
-        <div class="field">
           <label style="text-align:center">กำหนดส่ง</label>
           <select id="filterDeadline">
             <option value="">ทั้งหมด</option>
@@ -1512,7 +1509,6 @@ tr.route-editable:hover td{background:var(--amber-glow)}
           </select>
         </div>
       </div>
-      <div class="search-tips">เคล็ดลับ: พิมพ์ <b>กม.</b> เช่น <b>225+500</b> เพื่อหาเรื่องที่อยู่ใกล้จุดนั้น (±200 ม.) · พิมพ์ได้หลายคำคั่นด้วยเว้นวรรค เช่น <b>3574 ป้าย</b></div>
       <div class="list-count" id="listCount"></div>
       <div class="table-wrap">
         <table class="data" id="dataTable">
@@ -3646,8 +3642,9 @@ function populateYearFilter(){
 function populateStaticFilters(){
   document.getElementById('filterType').innerHTML = '<option value="">ทั้งหมด</option>' +
     PERMIT_TYPES.map(t => `<option value="${t.key}">${escapeHtml(t.no + ' ' + t.short)}</option>`).join('');
-  document.getElementById('filterStep').innerHTML = '<option value="">ทั้งหมด</option>' +
-    STEPS.slice(1, SENT_STEP + 1).map((s, i) => `<option value="${i + 1}">${escapeHtml(s.wait)}</option>`).join('');
+  // "ขั้นตอนที่รอ" รวมอยู่ในช่องสถานะ (ค่า step:N) เพื่อให้แถบกรองอยู่แถวเดียวเหมือนระบบอื่น
+  document.getElementById('filterStatus').insertAdjacentHTML('beforeend', '<optgroup label="กำลังดำเนินการในหมวดฯ — รอขั้นตอน">' +
+    STEPS.slice(1, SENT_STEP + 1).map((s, i) => `<option value="step:${i + 1}">${escapeHtml(s.wait)}</option>`).join('') + '</optgroup>');
 }
 
 /* ===== เขตพื้นที่: เลือก ทล. + กม. + ด้าน แล้วเติม หมู่/ตำบล/อำเภอ/จังหวัด ให้อัตโนมัติ (แก้เองได้) ===== */
@@ -4225,7 +4222,9 @@ function listFilterState(){
   return {
     q: thaiDigits(document.getElementById('searchBox').value).trim().toLowerCase(),
     year: v('filterYear'), type: v('filterType'), hw: v('filterHighway'),
-    status: v('filterStatus'), step: v('filterStep'), deadline: v('filterDeadline'), issues: v('filterIssues')
+    status: v('filterStatus').startsWith('step:') ? '' : v('filterStatus'),
+    step: v('filterStatus').startsWith('step:') ? v('filterStatus').slice(5) : '',
+    deadline: v('filterDeadline'), issues: v('filterIssues')
   };
 }
 // ข้อความรวมของเรื่องสำหรับค้นหา
@@ -4286,7 +4285,7 @@ function describeListFilters(){
   if (f.type) out.push('ประเภท: ' + typeShort(f.type));
   if (f.hw) out.push('ทล.' + f.hw);
   if (f.status) out.push('สถานะ: ' + selText('filterStatus'));
-  if (f.step) out.push('ขั้นตอน: ' + selText('filterStep'));
+  if (f.step) out.push('ขั้นตอน: ' + selText('filterStatus'));
   if (f.deadline) out.push('กำหนดส่ง: ' + selText('filterDeadline'));
   if (f.issues) out.push(selText('filterIssues'));
   if (f.q) out.push('คำค้น "' + document.getElementById('searchBox').value.trim() + '"');
@@ -4301,18 +4300,15 @@ function urgencyRank(r){
   if (isWaitingResult(r)) return 3;
   return 4;
 }
-let listSortMode = 'urgent';
 function renderTable(){
   populateYearFilter();
   const seqMap = computeSeqMap();
   const f = listFilterState();
   const rows = records.filter(r => recordMatchesList(r, f, seqMap));
-  rows.sort((a, b) => (listSortMode === 'urgent' ? urgencyRank(a) - urgencyRank(b) : 0) || (b.dateReceived || '').localeCompare(a.dateReceived || ''));
+  rows.sort((a, b) => urgencyRank(a) - urgencyRank(b) || (b.dateReceived || '').localeCompare(a.dateReceived || ''));
   const tbody = document.getElementById('tableBody');
   document.getElementById('emptyState').style.display = rows.length ? 'none' : 'block';
-  document.getElementById('listCount').innerHTML = (rows.length === records.length ? ('ทั้งหมด ' + records.length + ' เรื่อง') : ('แสดง ' + rows.length + ' จาก ' + records.length + ' เรื่อง'))
-    + ` · เรียง: <a class="link-btn" id="sortToggle">${listSortMode === 'urgent' ? 'เร่งด่วนก่อน ⇅' : 'รับเรื่องล่าสุดก่อน ⇅'}</a>`;
-  document.getElementById('sortToggle').onclick = () => { listSortMode = listSortMode === 'urgent' ? 'date' : 'urgent'; renderTable(); };
+  document.getElementById('listCount').textContent = rows.length === records.length ? ('ทั้งหมด ' + records.length + ' เรื่อง') : ('แสดง ' + rows.length + ' จาก ' + records.length + ' เรื่อง');
   tbody.innerHTML = rows.map((r, i) => {
     const t = typeOf(r.permitType);
     const dp = docProgress(r);
@@ -4336,8 +4332,7 @@ function goToFilteredList(opts){
   setV('filterYear', opts.year && opts.year !== 'ทั้งหมด' ? String(opts.year) : '');
   setV('filterType', opts.type || '');
   setV('filterHighway', opts.hw || '');
-  setV('filterStatus', opts.status || '');
-  setV('filterStep', opts.step || '');
+  setV('filterStatus', opts.step ? 'step:' + opts.step : (opts.status || ''));
   setV('filterDeadline', opts.deadline || '');
   setV('filterIssues', opts.issues || '');
   setV('searchBox', '');
@@ -5326,7 +5321,7 @@ function init(){
     renderTable();
     document.getElementById('searchBox').focus();
   });
-  ['filterYear', 'filterType', 'filterHighway', 'filterStatus', 'filterStep', 'filterDeadline', 'filterIssues'].forEach(id =>
+  ['filterYear', 'filterType', 'filterHighway', 'filterStatus', 'filterDeadline', 'filterIssues'].forEach(id =>
     document.getElementById(id).addEventListener('change', renderTable));
   document.getElementById('btnExportXlsx').addEventListener('click', (e) => { e.stopPropagation(); openExportMenu('xlsx'); });
   document.getElementById('btnExportPdf').addEventListener('click', (e) => { e.stopPropagation(); openExportMenu('pdf'); });
