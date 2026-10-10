@@ -281,7 +281,7 @@ h1,h2,h3,.display{font-family:'Kanit',sans-serif;font-weight:700}
 
  
 .table-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-bottom:14px}
-#view-list .table-toolbar .field select{max-width:150px}
+#view-list .table-toolbar .field select{max-width:175px}
 .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--card)}
 #assetsTable{table-layout:fixed;width:100%}
 #assetsTable th:nth-child(1),#assetsTable td:nth-child(1){width:auto}
@@ -1488,6 +1488,10 @@ tr.route-editable:hover td{background:var(--amber-glow)}
             <option value="approved">อนุญาตแล้ว</option>
             <option value="denied">ไม่อนุญาต</option>
             <option value="cancel">ยกเลิก/ถอนเรื่อง</option>
+            <optgroup label="ตรวจสอบข้อมูล">
+              <option value="issues:yes">⚠️ ต้องตรวจสอบ</option>
+              <option value="issues:docs">📄 เอกสารยังไม่ครบ</option>
+            </optgroup>
           </select>
         </div>
         <div class="field">
@@ -1498,14 +1502,6 @@ tr.route-editable:hover td{background:var(--amber-glow)}
             <option value="near">ใกล้ครบกำหนด</option>
             <option value="late">ส่งช้ากว่ากำหนด</option>
             <option value="ontime">ส่งทันกำหนด</option>
-          </select>
-        </div>
-        <div class="field">
-          <label style="text-align:center">ตรวจสอบข้อมูล</label>
-          <select id="filterIssues">
-            <option value="">ทั้งหมด</option>
-            <option value="yes">⚠️ ต้องตรวจสอบ</option>
-            <option value="docs">📄 เอกสารยังไม่ครบ</option>
           </select>
         </div>
       </div>
@@ -4222,9 +4218,10 @@ function listFilterState(){
   return {
     q: thaiDigits(document.getElementById('searchBox').value).trim().toLowerCase(),
     year: v('filterYear'), type: v('filterType'), hw: v('filterHighway'),
-    status: v('filterStatus').startsWith('step:') ? '' : v('filterStatus'),
+    status: /^(step|issues):/.test(v('filterStatus')) ? '' : v('filterStatus'),
     step: v('filterStatus').startsWith('step:') ? v('filterStatus').slice(5) : '',
-    deadline: v('filterDeadline'), issues: v('filterIssues')
+    deadline: v('filterDeadline'),
+    issues: v('filterStatus').startsWith('issues:') ? v('filterStatus').slice(7) : ''
   };
 }
 // ข้อความรวมของเรื่องสำหรับค้นหา
@@ -4287,7 +4284,7 @@ function describeListFilters(){
   if (f.status) out.push('สถานะ: ' + selText('filterStatus'));
   if (f.step) out.push('ขั้นตอน: ' + selText('filterStatus'));
   if (f.deadline) out.push('กำหนดส่ง: ' + selText('filterDeadline'));
-  if (f.issues) out.push(selText('filterIssues'));
+  if (f.issues) out.push(selText('filterStatus'));
   if (f.q) out.push('คำค้น "' + document.getElementById('searchBox').value.trim() + '"');
   return out;
 }
@@ -4332,9 +4329,8 @@ function goToFilteredList(opts){
   setV('filterYear', opts.year && opts.year !== 'ทั้งหมด' ? String(opts.year) : '');
   setV('filterType', opts.type || '');
   setV('filterHighway', opts.hw || '');
-  setV('filterStatus', opts.step ? 'step:' + opts.step : (opts.status || ''));
+  setV('filterStatus', opts.step ? 'step:' + opts.step : opts.issues ? 'issues:' + opts.issues : (opts.status || ''));
   setV('filterDeadline', opts.deadline || '');
-  setV('filterIssues', opts.issues || '');
   setV('searchBox', '');
   document.getElementById('searchWrap').classList.remove('has-text');
   renderTable();
@@ -5321,7 +5317,7 @@ function init(){
     renderTable();
     document.getElementById('searchBox').focus();
   });
-  ['filterYear', 'filterType', 'filterHighway', 'filterStatus', 'filterDeadline', 'filterIssues'].forEach(id =>
+  ['filterYear', 'filterType', 'filterHighway', 'filterStatus', 'filterDeadline'].forEach(id =>
     document.getElementById(id).addEventListener('change', renderTable));
   document.getElementById('btnExportXlsx').addEventListener('click', (e) => { e.stopPropagation(); openExportMenu('xlsx'); });
   document.getElementById('btnExportPdf').addEventListener('click', (e) => { e.stopPropagation(); openExportMenu('pdf'); });
