@@ -1585,6 +1585,7 @@ tr.route-editable:hover td{background:var(--amber-glow)}
       <div class="card" id="trendCard">
         <div class="section-title">รายปีงบประมาณ</div>
         <div id="yearBars"></div>
+        <div id="yearOlder"></div>
       </div>
     </div>
 
@@ -1994,6 +1995,7 @@ let records = [];
 let editingId = null;
 let recorderName = '';
 let dashYear = 'ทั้งหมด';
+let yearOlderOpen = false; // รายปีงบ: ปีเก่ากว่า 10 ปีซ่อนเป็นตาราง กดปุ่มเพื่อเปิดดู
 let teamConfig = { ownerName: '', members: [] };
 let formDocs = {};          // เช็กลิสต์เอกสารในฟอร์ม { key: true }
 let zoneLastAuto = null;    // ค่าที่ระบบเติมให้ล่าสุด — ถ้าเจ้าหน้าที่แก้เองแล้วจะไม่ถูกเขียนทับ
@@ -4951,10 +4953,33 @@ function renderDashboard(){
     trend.style.display = '';
     const byY = {};
     records.forEach(r => { if (r.fiscalYear) byY[r.fiscalYear] = (byY[r.fiscalYear] || 0) + 1; });
-    const yRows = Object.keys(byY).sort().map(y => ({ label: 'ปีงบ ' + escapeHtml(y), n: byY[y], y }));
+    // แสดง 10 ปีงบล่าสุด (ปีล่าสุดอยู่บนสุด) ปีที่เก่ากว่านั้นซ่อนเป็นตาราง กดปุ่มเพื่อเปิดดู
+    const allY = Object.keys(byY).sort().reverse();
+    const yRows = allY.slice(0, 10).map(y => ({ label: 'ปีงบ ' + escapeHtml(y), n: byY[y], y }));
+    const olderY = allY.slice(10);
     const yEl = document.getElementById('yearBars');
     yEl.innerHTML = hbarHtml(yRows, 'yr');
     yEl.querySelectorAll('.hbar').forEach(el => { el.onclick = () => { dashYear = yRows[Number(el.dataset.i)].y; renderDashboard(); }; });
+    const oEl = document.getElementById('yearOlder');
+    if (oEl) {
+      if (!olderY.length) oEl.innerHTML = '';
+      else {
+        const maxO = Math.max(...olderY.map(y => byY[y]), 1);
+        oEl.innerHTML = `
+          <div style="text-align:center;margin-top:8px"><a class="link-btn" id="yearOlderLink">${yearOlderOpen ? '▲ ซ่อนปีก่อนหน้า' : '▼ ดูปีก่อนหน้า ' + olderY.length + ' ปี'}</a></div>
+          ${yearOlderOpen ? `
+            <table class="spot-table">
+              <thead><tr><th>ปีงบประมาณ</th><th style="width:45%"></th><th style="text-align:right">เรื่อง</th></tr></thead>
+              <tbody>${olderY.map(y => `
+                <tr style="cursor:pointer" data-y="${escapeHtml(y)}"><td>ปีงบ ${escapeHtml(y)}</td>
+                <td><div class="mini-track"><i style="width:${Math.round(byY[y] / maxO * 100)}%;background:linear-gradient(90deg,#5cbfb1,#1f7a70)"></i></div></td>
+                <td class="mono" style="text-align:right"><b>${byY[y]}</b></td></tr>`).join('')}
+              </tbody>
+            </table>` : ''}`;
+        document.getElementById('yearOlderLink').onclick = () => { yearOlderOpen = !yearOlderOpen; renderDashboard(); };
+        oEl.querySelectorAll('tr[data-y]').forEach(tr => { tr.onclick = () => { dashYear = tr.dataset.y; renderDashboard(); }; });
+      }
+    }
   } else {
     trend.style.display = 'none';
   }
