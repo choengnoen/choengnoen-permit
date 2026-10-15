@@ -2152,6 +2152,14 @@ function formatThaiDate(dateStr){
   const yearBE = String(d.getFullYear() + 543).slice(-2);
   return `${day} ${month} ${yearBE}`;
 }
+// วันที่แบบเต็มไม่ย่อ (ใช้ในหน้าต่างรายละเอียดและรูปคัดลอก) เช่น 11 สิงหาคม 2569
+const THAI_MONTHS_FULL = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+function formatThaiDateFull(dateStr){
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return escapeHtml(dateStr);
+  return `${d.getDate()} ${THAI_MONTHS_FULL[d.getMonth()]} ${d.getFullYear() + 543}`;
+}
 function escapeHtml(s){
   if (s === null || s === undefined) return '';
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -4687,7 +4695,7 @@ async function buildCaseImage(){
   body.appendChild(mk('snap-col', [...top, grid]));
   const stamp = document.createElement('div');
   stamp.className = 'snap-stamp';
-  stamp.textContent = SNAP_SYSTEM_NAME + ' · หมวดทางหลวงเชิงเนิน แขวงทางหลวงระยอง · คัดลอกเมื่อ ' + (() => { const n = new Date(), z = x => String(x).padStart(2, '0'); return formatThaiDate(n.getFullYear() + '-' + z(n.getMonth() + 1) + '-' + z(n.getDate())) + ' ' + z(n.getHours()) + ':' + z(n.getMinutes()); })() + ' น.';
+  stamp.textContent = SNAP_SYSTEM_NAME + ' · หมวดทางหลวงเชิงเนิน แขวงทางหลวงระยอง · คัดลอกเมื่อ ' + (() => { const n = new Date(), z = x => String(x).padStart(2, '0'); return formatThaiDateFull(n.getFullYear() + '-' + z(n.getMonth() + 1) + '-' + z(n.getDate())) + ' เวลา ' + z(n.getHours()) + ':' + z(n.getMinutes()); })() + ' น.';
   shell.append(hd, body, stamp);
 
   const stage = document.createElement('div');
@@ -4799,16 +4807,16 @@ function openCaseDetailModal(id){
     const d = normalizeDateStr(rec[s.field]);
     const label = SHORT_STEP[s.field] || s.label;
     if (isCancelled(rec) && !d) return stepLi('n', label, 'ยกเลิก');
-    if (d) return stepLi('ok', label, escapeHtml(formatThaiDate(d)), (s.field === 'sentDate' && dl.key === 'late') ? escapeHtml(dl.text) : '');
+    if (d) return stepLi('ok', label, escapeHtml(formatThaiDateFull(d)), (s.field === 'sentDate' && dl.key === 'late') ? escapeHtml(dl.text) : '');
     if (s.field === 'sentDate') {
       if (dl.key === 'none') return stepLi('warn', label, 'รอเอกสารครบ');
-      return stepLi(dl.cls === 'bad' ? 'bad' : 'warn', label, escapeHtml(dl.text).replace(/(\d+ วันทำการ)/, '<span class="cd-nw">$1</span>'), dl.due ? 'กำหนด ' + escapeHtml(formatThaiDate(dl.due)) : '');
+      return stepLi(dl.cls === 'bad' ? 'bad' : 'warn', label, escapeHtml(dl.text).replace(/(\d+ วันทำการ)/, '<span class="cd-nw">$1</span>'), dl.due ? 'กำหนด ' + escapeHtml(formatThaiDateFull(dl.due)) : '');
     }
     if (s.field === 'docCheckedDate') return stepLi('warn', label, escapeHtml(s.wait), dp.need ? 'เอกสาร ' + dp.have + '/' + dp.need : '');
     return stepLi('warn', label, escapeHtml(s.wait || 'ยังไม่ระบุ'));
   }).join('');
-  const resultStep = rec.result === 'อนุญาต' ? stepLi('ok', 'ผลพิจารณา', 'อนุญาต' + (rec.resultDate ? ' ' + escapeHtml(formatThaiDate(rec.resultDate)) : ''))
-    : rec.result === 'ไม่อนุญาต' ? stepLi('bad', 'ผลพิจารณา', 'ไม่อนุญาต' + (rec.resultDate ? ' ' + escapeHtml(formatThaiDate(rec.resultDate)) : ''))
+  const resultStep = rec.result === 'อนุญาต' ? stepLi('ok', 'ผลพิจารณา', 'อนุญาต' + (rec.resultDate ? ' ' + escapeHtml(formatThaiDateFull(rec.resultDate)) : ''))
+    : rec.result === 'ไม่อนุญาต' ? stepLi('bad', 'ผลพิจารณา', 'ไม่อนุญาต' + (rec.resultDate ? ' ' + escapeHtml(formatThaiDateFull(rec.resultDate)) : ''))
     : isCancelled(rec) ? stepLi('n', 'ผลพิจารณา', 'ยกเลิก/ถอนเรื่อง')
     : stepLi('warn', 'ผลพิจารณา', 'รอผลพิจารณา');
   const tilesHtml = `${issuesBoxHtml(rec)}<div class="cd-prog">
@@ -4820,7 +4828,7 @@ function openCaseDetailModal(id){
     const done = !!rec[s.field];
     const cls = done ? 'done' : (i === next && !isClosed(rec) ? 'next' : '');
     let sub = done ? escapeHtml(thaiDateFull(rec[s.field])) + ' · ' + escapeHtml(s.who) : (i === next && !isClosed(rec) ? 'ขั้นถัดไป · ' + escapeHtml(s.who) : escapeHtml(s.who));
-    if (s.field === 'inspectedDate' && (rec.appointDate || rec.inspectResult)) sub += '<br>' + [rec.appointDate ? 'นัดตรวจ ' + escapeHtml(formatThaiDate(rec.appointDate)) : '', rec.inspectResult ? 'ความเห็น: ' + escapeHtml(rec.inspectResult) : ''].filter(Boolean).join(' · ') + (rec.inspectNote ? '<br>' + escapeHtml(rec.inspectNote) : '');
+    if (s.field === 'inspectedDate' && (rec.appointDate || rec.inspectResult)) sub += '<br>' + [rec.appointDate ? 'นัดตรวจ ' + escapeHtml(formatThaiDateFull(rec.appointDate)) : '', rec.inspectResult ? 'ความเห็น: ' + escapeHtml(rec.inspectResult) : ''].filter(Boolean).join(' · ') + (rec.inspectNote ? '<br>' + escapeHtml(rec.inspectNote) : '');
     if (s.field === 'sentDate' && done) sub += '<br>' + [rec.outLetterNo ? 'หนังสือ ' + escapeHtml(rec.outLetterNo) : 'ยังไม่ระบุเลขหนังสือส่ง', rec.eServiceDone ? '✓ ลง e-services แล้ว' + (rec.eServiceRef ? ' (' + escapeHtml(rec.eServiceRef) + ')' : '') : '✗ ยังไม่ลง e-services'].join(' · ');
     if (s.field === 'archivedDate' && rec.storageLocation) sub += '<br>ที่เก็บ: ' + escapeHtml(rec.storageLocation);
     return `<li class="${cls}"><span class="tl-dot">${done ? '✓' : i + 1}</span><div class="tl-name">${escapeHtml(s.label)}</div><div class="tl-sub">${sub}</div></li>`;
@@ -4832,9 +4840,9 @@ function openCaseDetailModal(id){
   const near = nearbyCases(rec.highway, rec.km, rec.id);
   const resultHtml = `
     <dl class="cd-dl">
-      <dt>ผลพิจารณา</dt><dd>${escapeHtml(rec.result || (isCancelled(rec) ? '-' : 'รอผลการพิจารณา'))}${rec.resultDate ? ' · ' + escapeHtml(formatThaiDate(rec.resultDate)) : ''}</dd>
-      <dt>เลขที่หนังสือ</dt><dd>${rec.permitNo ? escapeHtml(rec.permitNo) : CD_NA}${rec.permitDate ? ' ลว. ' + escapeHtml(formatThaiDate(rec.permitDate)) : ''}</dd>
-      ${rec.validFrom || rec.validTo ? `<dt>ระยะเวลาอนุญาต</dt><dd>${escapeHtml(formatThaiDate(rec.validFrom) || '-')} ถึง ${escapeHtml(formatThaiDate(rec.validTo) || '-')}</dd>` : ''}
+      <dt>ผลพิจารณา</dt><dd>${escapeHtml(rec.result || (isCancelled(rec) ? '-' : 'รอผลการพิจารณา'))}${rec.resultDate ? ' · ' + escapeHtml(formatThaiDateFull(rec.resultDate)) : ''}</dd>
+      <dt>เลขที่หนังสือ</dt><dd>${rec.permitNo ? escapeHtml(rec.permitNo) : CD_NA}${rec.permitDate ? ' ลว. ' + escapeHtml(formatThaiDateFull(rec.permitDate)) : ''}</dd>
+      ${rec.validFrom || rec.validTo ? `<dt>ระยะเวลาอนุญาต</dt><dd>${escapeHtml(formatThaiDateFull(rec.validFrom) || '-')} ถึง ${escapeHtml(formatThaiDateFull(rec.validTo) || '-')}</dd>` : ''}
       <dt>สำเนาเก็บ</dt><dd>${rec.copyReceived ? '✓ ได้รับและจัดเก็บ 1 ชุดแล้ว' : (isDecided(rec) ? '✗ ยังไม่ได้รับสำเนา' : '-')}</dd>
       ${isCancelled(rec) ? `<dt>ยกเลิก</dt><dd>${escapeHtml(rec.cancelReason || 'ผู้ขอถอนเรื่อง')}</dd>` : ''}
     </dl>`;
@@ -4870,7 +4878,7 @@ function openCaseDetailModal(id){
                 </dl></div>
               <div class="cd-card"><div class="cd-sec">รายละเอียดที่ขออนุญาต</div>
                 <dl class="cd-dl">
-                  <dt>วันรับเรื่อง</dt><dd>${cdVal(rec.dateReceived ? formatThaiDate(rec.dateReceived) : '')}</dd>
+                  <dt>วันรับเรื่อง</dt><dd>${cdVal(rec.dateReceived ? formatThaiDateFull(rec.dateReceived) : '')}</dd>
                   <dt>ลักษณะ</dt><dd>${cdVal(rec.subType)}</dd>
                   <dt>รายละเอียด</dt><dd>${cdVal(rec.typeDetail)}</dd>
                   <dt>เหตุผล</dt><dd>${cdVal(rec.reason)}</dd>
