@@ -1195,6 +1195,30 @@ tr.route-editable:hover td{background:var(--amber-glow)}
 .gd-doc small{color:var(--amber-deep)}
 .gd-meta{display:flex;gap:10px 22px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--ink-soft)}
 .gd-meta b{color:var(--ink)}
+/* เอกสารประกอบงาน (เค้าโครงเดียวกับระบบอุบัติเหตุ): แท็บประเภทงาน + แผงรายละเอียด */
+.gd-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 4px}
+.gd-tabs button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 14px;font-size:13px;cursor:pointer;color:var(--ink-soft);display:inline-flex;align-items:center;gap:6px;transition:border-color .15s ease,color .15s ease}
+.gd-tabs button b{font-family:'Kanit',sans-serif;font-weight:600;color:var(--navy-700)}
+.gd-tabs button:hover{border-color:var(--amber-500);color:var(--amber)}
+.gd-tabs button.active{background:linear-gradient(135deg,var(--amber-500),var(--amber));color:#fff;border-color:transparent;font-family:'Kanit',sans-serif;font-weight:600;box-shadow:0 4px 12px -2px rgba(224,98,15,.4)}
+.gd-tabs button.active b{color:#fff}
+.gd-panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:14px}
+.gd-panel>h3{margin:0 0 10px;font-family:'Kanit',sans-serif;font-weight:600;font-size:15px;color:var(--ink);display:flex;gap:9px;align-items:center}
+.gd-step{display:flex;gap:10px;align-items:flex-start;background:var(--paper);border-radius:10px;padding:8px 12px;margin-bottom:6px;font-size:13.5px;line-height:1.55}
+.gd-step:last-child{margin-bottom:0}
+.gd-step i{font-style:normal;flex:none;width:24px;height:24px;border-radius:50%;background:var(--navy-700);color:#fff;display:grid;place-items:center;font-size:12.5px;font-weight:600}
+.gd-step span{min-width:0;overflow-wrap:anywhere}
+.gd-step a{color:var(--navy-700);text-decoration:underline}
+.gd-two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.gd-two>.gd-panel{margin-top:14px}
+.gd-row{display:flex;gap:10px;align-items:center;background:var(--paper);border-radius:10px;padding:8px 12px;margin-bottom:6px;font-size:13.5px}
+.gd-row:last-child{margin-bottom:0}
+.gd-row b{color:var(--navy-700);flex:none;min-width:14px}
+.gd-row .q{margin-left:auto;flex:none;background:var(--navy-700);color:#fff;border-radius:999px;padding:0 11px;font-size:12px;font-weight:600;white-space:nowrap}
+.gd-row small{color:var(--amber-deep)}
+.gd-form{background:var(--paper);border-radius:10px;padding:8px 12px;margin-bottom:6px;font-size:13.5px;line-height:1.55}
+.gd-form:last-child{margin-bottom:0}
+@media (max-width:760px){.gd-two{grid-template-columns:1fr}}
 
 /* ชิปตัวกรองที่เลือก (สายทาง/pill) ให้เหมือนปุ่ม "ทุกปีงบประมาณ" */
 .hw-tab-filter button.active,.pill-filter button.active{font-family:'Kanit',sans-serif;font-weight:600;box-shadow:0 4px 12px -2px rgba(224,98,15,.4)}
@@ -1746,7 +1770,7 @@ tr.route-editable:hover td{background:var(--amber-glow)}
    โคลนโครงจากระบบงานโจรกรรม (ล็อกอิน ทีม สิทธิ์ ถังขยะ สายทาง เขตพื้นที่ ส่งออก Excel/PDF)
    เนื้องานอ้างอิง "คู่มือ งานขออนุญาตดำเนินการใดๆในเขตทาง.pdf":
      - ผังกระบวนงาน 7 ขั้น (รับเอกสาร → ตรวจเอกสาร → ตรวจสอบ/พิจารณา → จัดทำบันทึก → ลงนาม → ออกเลข/นำส่ง/ลง e-services → เก็บสำเนา)
-     - ประเภทงาน 7 ประเภท (1.1–1.7) พร้อมมาตราและเอกสารหลักฐานของแต่ละประเภท
+     - ประเภทงาน 7 ประเภท (1–7) พร้อมมาตราและเอกสารหลักฐานของแต่ละประเภท
      - กำหนดส่ง: ภายใน 3 วัน นับตั้งแต่เอกสารถูกต้องและครบถ้วน (ระบบนับเป็นวันทำการ จันทร์–ศุกร์)
    ========================================================================== */
 
@@ -1772,7 +1796,7 @@ const DEFAULT_ROUTES = [
 let ROUTE_HIGHWAYS = new Set();
 function recomputeRouteHighways(){ ROUTE_HIGHWAYS = new Set(ROUTES.map(r => String(r.highway))); }
 
-/* ===== ประเภทงานขออนุญาต 7 ประเภท (ตามคู่มือ ข้อ 1.1–1.7) =====
+/* ===== ประเภทงานขออนุญาต 7 ประเภท (ตามคู่มือ ข้อ 1–7) =====
    docs: รายการเอกสารหลักฐานที่ต้องจัดส่ง — when(r) = ต้องมีเฉพาะบางกรณี (คืน true เมื่อจำเป็น), cond = ข้อความอธิบายกรณี */
 const IS_COMPANY = r => r.applicantType === 'นิติบุคคล';
 const HAS_PROXY = r => r.hasProxy === 'มี';
@@ -1787,7 +1811,7 @@ const DOC_DETAIL  = { k: 'detail',  label: 'รายละเอียดกา
 const reqDoc = (sec, extra) => ({ k: 'request', label: 'คำขออนุญาตตามมาตรา ' + sec + (extra || '') });
 
 const PERMIT_TYPES = [
-  { key: 'access', no: '1.1', icon: '🚗', short: 'ทางเชื่อมเข้า-ออก', label: 'ขออนุญาตสร้างทางเพื่อเป็นทางเข้า-ออกทางหลวง', section: '37', sets: '3 ชุด',
+  { key: 'access', no: '1', icon: '🚗', short: 'ทางเชื่อมเข้า-ออก', label: 'ขออนุญาตสร้างทางเพื่อเป็นทางเข้า-ออกทางหลวง', section: '37', sets: '3 ชุด',
     subLabel: 'แบบก่อสร้างมาตรฐาน',
     subs: ['ที่ดินว่างเปล่า/ที่พักอาศัย (แบบ 37/1)', 'อาคารพาณิชย์ (แบบ 37/2)', 'ปั๊มน้ำมัน/แก๊ส (แบบ 37/3)', 'อื่นๆ (ผู้ขอจัดทำแบบก่อสร้างเอง)'],
     docs: [DOC_MEMO, reqDoc('37'), { k: 'map', label: 'แผนผังสังเขปบริเวณที่ขออนุญาต' },
@@ -1797,7 +1821,7 @@ const PERMIT_TYPES = [
       { k: 'ownerId', label: 'สำเนาบัตรประชาชนและสำเนาทะเบียนบ้านของเจ้าของที่ดิน', when: r => r.landOwnerSame === 'ไม่ใช่', cond: 'กรณีผู้ขอกับเจ้าของที่ดินไม่ใช่คนเดียวกัน' },
       { k: 'mortgage', label: 'หนังสือยินยอมของผู้รับจำนอง', when: r => r.mortgaged === 'มี', cond: 'กรณีที่ดินติดจำนอง' },
       DOC_COMPANY, DOC_PROXY] },
-  { key: 'sign', no: '1.2', icon: '🪧', short: 'ติดตั้งป้าย', label: 'ขออนุญาตติดตั้งป้ายในเขตทางหลวง', section: '47', sets: '5 ชุด',
+  { key: 'sign', no: '2', icon: '🪧', short: 'ติดตั้งป้าย', label: 'ขออนุญาตติดตั้งป้ายในเขตทางหลวง', section: '47', sets: '5 ชุด',
     subLabel: 'ลักษณะป้าย', subs: ['ป้ายโฆษณา', 'ป้ายชื่อสถานที่/บอกทาง', 'อื่นๆ'],
     docs: [DOC_MEMO, reqDoc('47', ' พร้อมระบุเหตุผลและความจำเป็น'), DOC_MAP,
       { k: 'xsection', label: 'รูปตัดแสดงระยะผิวจราจร ไหล่ทาง เขตทางหลวง' },
@@ -1806,7 +1830,7 @@ const PERMIT_TYPES = [
       DOC_PHOTO, DOC_ID,
       { k: 'company', label: 'หนังสือรับรองบริษัท หรือใบอนุญาตจากหน่วยงานราชการให้ประกอบกิจการ', when: IS_COMPANY, cond: 'กรณีผู้ขอเป็นบริษัท' },
       DOC_PROXY] },
-  { key: 'drainConnect', no: '1.3', icon: '🚰', short: 'เชื่อมท่อระบายน้ำ', label: 'ขออนุญาตเชื่อมท่อระบายน้ำในเขตทางหลวง', section: '39/1', sets: '5 ชุด',
+  { key: 'drainConnect', no: '3', icon: '🚰', short: 'เชื่อมท่อระบายน้ำ', label: 'ขออนุญาตเชื่อมท่อระบายน้ำในเขตทางหลวง', section: '39/1', sets: '5 ชุด',
     subLabel: '', subs: [],
     docs: [DOC_MEMO, reqDoc('39/1', ' (ฉบับแก้ไขเพิ่มเติม) พร้อมเหตุผล'), DOC_MAP,
       { k: 'xsection', label: 'รูปตัดแสดงระยะจุดก่อสร้าง พร้อมแสดงการเชื่อมต่อท่อและรายละเอียด' },
@@ -1815,13 +1839,13 @@ const PERMIT_TYPES = [
       DOC_PHOTO, { k: 'deed', label: 'สำเนาโฉนดที่ดิน' }, DOC_ID, DOC_COMPANY,
       { k: 'waterPermit', label: 'ใบอนุญาตหรือใบยินยอมจากหน่วยงานที่เกี่ยวข้อง', when: r => r.toWaterway === 'ใช่', cond: 'กรณีน้ำระบายลงคลองชลประทาน ลำราง แม่น้ำ' },
       DOC_PROXY] },
-  { key: 'lighting', no: '1.4', icon: '💡', short: 'ไฟฟ้า/สัญญาณ/CCTV', label: 'ขออนุญาตติดตั้งไฟฟ้าแสงสว่าง สัญญาณไฟกระพริบ กล้องโทรทัศน์', section: '47', sets: '5 ชุด',
+  { key: 'lighting', no: '4', icon: '💡', short: 'ไฟฟ้า/สัญญาณ/CCTV', label: 'ขออนุญาตติดตั้งไฟฟ้าแสงสว่าง สัญญาณไฟกระพริบ กล้องโทรทัศน์', section: '47', sets: '5 ชุด',
     subLabel: 'สิ่งที่ติดตั้ง', subs: ['ไฟฟ้าแสงสว่าง', 'สัญญาณไฟกระพริบ', 'กล้องโทรทัศน์วงจรปิด (CCTV)'],
     docs: [DOC_MEMO, reqDoc('47', ' พร้อมระบุเหตุผลและความจำเป็น'), DOC_MAP,
       { k: 'xsection', label: 'รูปตัดแสดงระยะผิวจราจร ไหล่ทาง เขตทางหลวง และระยะการติดตั้งอุปกรณ์ต่างๆ' },
       { k: 'detail', label: 'รายละเอียดการก่อสร้าง (ไฟฟ้าแสงสว่างต้องติดตั้งและใช้อุปกรณ์ตามแบบมาตรฐานกรมทางหลวง MD-601)' },
       DOC_PHOTO, DOC_ID, DOC_COMPANY, DOC_PROXY] },
-  { key: 'structure', no: '1.5', icon: '🏛', short: 'ซุ้มประตู/ศาลา/ใช้พื้นที่', label: 'ขออนุญาตก่อสร้างซุ้มประตู ศาลาที่พักผู้โดยสาร ใช้พื้นที่ทางหลวง', section: '47', sets: '5 ชุด',
+  { key: 'structure', no: '5', icon: '🏛', short: 'ซุ้มประตู/ศาลา/ใช้พื้นที่', label: 'ขออนุญาตก่อสร้างซุ้มประตู ศาลาที่พักผู้โดยสาร ใช้พื้นที่ทางหลวง', section: '47', sets: '5 ชุด',
     subLabel: 'สิ่งที่ขออนุญาต', subs: ['ซุ้มประตู', 'ศาลาที่พักผู้โดยสาร', 'ใช้พื้นที่ทางหลวง'],
     docs: [DOC_MEMO, reqDoc('47', ' พร้อมระบุเหตุผลและความจำเป็น (ซุ้มประตูต้องกำหนดระยะเวลาการใช้พื้นที่)'), DOC_MAP,
       { k: 'xsection', label: 'รูปตัดแสดงระยะจุดก่อสร้าง ระยะผิวจราจร ไหล่ทาง เขตทางหลวง' },
@@ -1830,12 +1854,12 @@ const PERMIT_TYPES = [
       DOC_PHOTO, DOC_ID, DOC_COMPANY,
       { k: 'dedicate', label: 'หนังสืออุทิศศาลาทางหลวงให้เป็นสมบัติของกรมทางหลวง', when: r => r.subType === 'ศาลาที่พักผู้โดยสาร', cond: 'กรณีก่อสร้างศาลา' },
       DOC_PROXY] },
-  { key: 'drainage', no: '1.6', icon: '🌊', short: 'ท่อระบายน้ำ/ขุดลอก', label: 'ขออนุญาตก่อสร้างท่อระบายน้ำ ขุดลอกคลองระบายน้ำในเขตทางหลวง', section: '47', sets: '5 ชุด',
+  { key: 'drainage', no: '6', icon: '🌊', short: 'ท่อระบายน้ำ/ขุดลอก', label: 'ขออนุญาตก่อสร้างท่อระบายน้ำ ขุดลอกคลองระบายน้ำในเขตทางหลวง', section: '47', sets: '5 ชุด',
     subLabel: 'ลักษณะงาน', subs: ['ก่อสร้างท่อระบายน้ำ', 'ขุดลอกคลองระบายน้ำ'],
     docs: [DOC_MEMO, reqDoc('47', ' พร้อมระบุเหตุผลและความจำเป็น'), DOC_MAP,
       { k: 'xsection', label: 'รูปตัดแสดงระยะจุดก่อสร้าง ระยะผิวจราจร ไหล่ทาง เขตทางหลวง (ขุดลอกคูคลอง: แสดงระยะด้านบน ด้านล่าง ความลึก)' },
       DOC_PLAN, DOC_DETAIL, DOC_PHOTO, DOC_ID, DOC_COMPANY, DOC_PROXY] },
-  { key: 'utility', no: '1.7', icon: '⚡', short: 'เสาไฟ/เคเบิล/ประปา', label: 'ขออนุญาตปักเสาพาดสายไฟฟ้า พาดสายเคเบิลใยแก้วนำแสง ดันท่อ/วางท่อประปา', section: '48 และ 56', sets: '5 ชุด',
+  { key: 'utility', no: '7', icon: '⚡', short: 'เสาไฟ/เคเบิล/ประปา', label: 'ขออนุญาตปักเสาพาดสายไฟฟ้า พาดสายเคเบิลใยแก้วนำแสง ดันท่อ/วางท่อประปา', section: '48 และ 56', sets: '5 ชุด',
     subLabel: 'ลักษณะงาน', subs: ['ปักเสาพาดสายไฟฟ้า', 'พาดสายเคเบิลใยแก้วนำแสง', 'ดันท่อประปา', 'วางท่อประปา'],
     docs: [DOC_MEMO, reqDoc('48 และ 56', ' พร้อมระบุเหตุผลและความจำเป็น'), DOC_MAP,
       { k: 'xsection', label: 'รูปตัดแสดงระยะจุดก่อสร้าง ระยะผิวจราจร ไหล่ทาง เขตทางหลวง' },
@@ -5179,23 +5203,40 @@ function renderGuide(){
     drainage: [MEMO, 'คำขออนุญาตตามมาตรา 47', MAPF, XS + ' และแสดงระยะในการดำเนินการ'],
     utility: [MEMO, 'คำขออนุญาตตามมาตรา 48 และ 56', MAPF, XS + ' และแสดงระยะในการดำเนินการ']
   };
-  const stepsHtml = `<div class="gd-h" style="margin-top:0">รายละเอียดการปฏิบัติงาน</div><ol class="gd-ol">${GUIDE_STEPS.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ol>`;
-  const metaHtml = `<div class="gd-h">กำหนดส่งรายงาน</div><div style="font-size:13.5px">ภายใน <b>${SEND_WORKDAYS} วัน</b> นับตั้งแต่เอกสารถูกต้องและครบถ้วน</div><div class="gd-h">รูปแบบการจัดเก็บสำเนา</div><ol class="gd-ol">${GUIDE_KEEP.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ol>`;
+  /* ลิงก์ในข้อความ (escape แล้ว) ให้คลิกเปิดแท็บใหม่ได้ — "ที่ <URL>" ขึ้นบรรทัดใหม่ไม่ให้ลิงก์ถูกหักกลางคำ */
+  const linkify = h => h.replace(/\s+(ที่\s+https?:\/\/)/g, '<br>$1').replace(/https?:\/\/[^\s<]+/g, u => `<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
   const el = document.getElementById('guideTypes');
-  el.innerHTML = PERMIT_TYPES.map(t => `
-    <div class="cd-card" style="margin-bottom:10px">
+  if (!renderGuide.cur || !typeOf(renderGuide.cur)) renderGuide.cur = PERMIT_TYPES[0].key;
+  const typeHtml = t => `
+    <div class="cd-card" style="margin:14px 0 0">
       <div class="cd-sec" style="justify-content:space-between;flex-wrap:wrap">
         <span>${t.icon} ${escapeHtml(t.no + ' ' + t.label)}</span>
         <span style="display:flex;gap:6px"><button type="button" class="btn btn-outline btn-sm" data-handout="${t.key}">🖨 พิมพ์ให้ผู้ขอ</button></span>
       </div>
-      ${t.subs.length ? `<div class="hint" style="margin:-4px 0 8px">${escapeHtml(t.subLabel)}: ${t.subs.map(escapeHtml).join(' · ')}</div>` : ''}
-      ${stepsHtml}
-      <div class="gd-h">แบบฟอร์ม/เอกสารที่เกี่ยวข้อง</div><ul class="gd-ul">${(GUIDE_FORMS[t.key] || []).map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ul>
-      <div class="gd-h">เอกสารหลักฐานที่ต้องจัดส่ง</div>
-      ${t.docs.map((d, i) => `<div class="cd-doc"><span class="ic">${i + 1}.</span><span>${escapeHtml(d.label)}${d.cond ? ' <small style="color:var(--amber-deep)">(' + escapeHtml(d.cond) + ')</small>' : ''}</span><span class="q">${escapeHtml(docQty(t, d))}</span></div>`).join('')}
-      ${metaHtml}
-    </div>`).join('');
-  el.querySelectorAll('[data-handout]').forEach(b => b.onclick = () => printHandout(typeOf(b.dataset.handout)));
+      ${t.subs.length ? `<div class="hint" style="margin:-4px 0 0">${escapeHtml(t.subLabel)}: ${t.subs.map(escapeHtml).join(' · ')}</div>` : ''}
+      <div class="gd-panel"><h3>📋 รายละเอียดการปฏิบัติงาน</h3>
+        ${GUIDE_STEPS.map((x, i) => `<div class="gd-step"><i>${i + 1}</i><span>${linkify(escapeHtml(x))}</span></div>`).join('')}
+      </div>
+      <div class="gd-two">
+        <div class="gd-panel"><h3>📄 แบบฟอร์ม/เอกสารที่เกี่ยวข้อง</h3>
+          ${(GUIDE_FORMS[t.key] || []).map(x => `<div class="gd-form">${escapeHtml(x)}</div>`).join('')}
+        </div>
+        <div class="gd-panel"><h3>📁 เอกสารหลักฐานที่ต้องจัดส่ง</h3>
+          ${t.docs.map((d, i) => `<div class="gd-row"><b>${i + 1}</b><span>${escapeHtml(d.label)}${d.cond ? ' <small>(' + escapeHtml(d.cond) + ')</small>' : ''}</span><span class="q">${escapeHtml(docQty(t, d))}</span></div>`).join('')}
+        </div>
+      </div>
+      <div class="gd-two">
+        <div class="gd-panel"><h3>⏱ กำหนดส่งรายงาน</h3><div style="font-size:13.5px">ภายใน <b>${SEND_WORKDAYS} วัน</b> นับตั้งแต่เอกสารถูกต้องและครบถ้วน</div></div>
+        <div class="gd-panel"><h3>🗂 รูปแบบการจัดเก็บสำเนา</h3>${GUIDE_KEEP.map(x => `<div class="gd-form">${escapeHtml(x)}</div>`).join('')}</div>
+      </div>
+    </div>`;
+  const draw = () => {
+    const t = typeOf(renderGuide.cur);
+    el.innerHTML = `<div class="gd-tabs" role="tablist">${PERMIT_TYPES.map(x => `<button type="button" role="tab" data-gtab="${x.key}" aria-selected="${x.key === t.key}" class="${x.key === t.key ? 'active' : ''}"><b>${escapeHtml(x.no)}</b>${x.icon} ${escapeHtml(x.short)}</button>`).join('')}</div>` + typeHtml(t);
+    el.querySelectorAll('[data-gtab]').forEach(b => b.onclick = () => { renderGuide.cur = b.dataset.gtab; draw(); });
+    el.querySelectorAll('[data-handout]').forEach(b => b.onclick = () => printHandout(typeOf(b.dataset.handout)));
+  };
+  draw();
 }
 
 /* ============ พิมพ์ (ใบปะหน้าเรื่อง / รายการเอกสารให้ผู้ขอ) ============ */
