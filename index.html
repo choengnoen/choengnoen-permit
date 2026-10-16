@@ -1078,6 +1078,31 @@ tr.route-editable:hover td{background:var(--amber-glow)}
 .type-card small{display:block;font-size:12px;color:var(--ink-mute);margin-top:2px}
 .type-tag{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:1px 10px;font-size:12px;font-weight:600;background:#e3edf7;color:#0a2540;white-space:nowrap}
 .sec-tag{display:inline-block;border-radius:6px;padding:0 7px;font-size:11.5px;font-weight:600;background:var(--paper-2);color:var(--ink-soft);margin-left:6px;white-space:nowrap}
+.dsel.dsel-fit{width:max-content;max-width:100%;min-width:240px}
+.addr-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:10px 12px}
+.addr-grid .a-name{grid-column:span 9}.addr-grid .a-phone{grid-column:span 3}
+.addr-grid.has-org .a-name{grid-column:span 5}.addr-grid .a-org{grid-column:span 4}
+.addr-grid .a-house{grid-column:span 2}.addr-grid .a-moo{grid-column:span 1}.addr-grid .a-street{grid-column:span 3}
+.addr-grid .a-tam{grid-column:span 3}.addr-grid .a-chip{grid-column:span 3}
+.addr-grid.addr-manual{margin-top:10px}.addr-grid.addr-manual .a-prov,.addr-grid.addr-manual .a-amp,.addr-grid.addr-manual .a-zip{grid-column:span 4}
+@media(max-width:720px){.addr-grid{grid-template-columns:1fr 1fr}.addr-grid .field{grid-column:span 1 !important}.addr-grid .a-name,.addr-grid .a-street,.addr-grid .a-org,.addr-grid .a-chip{grid-column:1/-1 !important}}
+.addr-chip{display:flex;align-items:center;gap:8px;height:var(--field-h);box-sizing:border-box;padding:0 10px;background:#fff;border:1px solid #cfe6d9;border-radius:8px;font-size:14.5px;white-space:nowrap}
+.addr-chip.empty{border:1px dashed #c9cec7;background:#fafbfa;color:var(--ink-mute);font-size:13px}
+.addr-chip #addrChipText{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.addr-chip .ok{color:var(--green);font-weight:700}
+.addr-chip .chip-edit{margin-left:auto;flex:none;font-size:12.5px;font-weight:600;color:var(--amber);cursor:pointer}
+.party-block-title .seg{font-family:'Sarabun',sans-serif;font-weight:400}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}
+.seg button{border:0;background:transparent;padding:7px 14px;font:inherit;font-size:13.5px;color:var(--ink-soft);cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button.on{background:var(--navy-900);color:#fff;font-weight:600}
+#proxySeg button{flex:1}
+@media(min-width:721px){
+  .party-block-title.pbt-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:10px 12px;align-items:center}
+  .party-block-title.pbt-grid>span{grid-column:span 9}
+  .party-block-title.pbt-grid #proxySeg{grid-column:span 3;width:100%}
+}
+#fsec2 .party-block+.party-block{margin-top:12px}
 .opt-row{display:flex;gap:6px;flex-wrap:wrap}
 .opt-row .em-chip{font-size:13.5px;padding:5px 13px}
 .cond-note{font-size:12.5px;color:var(--ink-mute);margin-top:6px}
@@ -1337,15 +1362,15 @@ tr.route-editable:hover td{background:var(--amber-glow)}
       <div class="section-title"><span class="num">1</span> ประเภทงานและการรับเรื่อง</div>
       <div class="field" style="margin-bottom:12px">
         <label>ประเภทงานขออนุญาต <span class="req">*</span></label>
-        <div class="type-grid" id="typeGrid"></div>
-        <input type="hidden" id="f_permitType">
+        <select id="f_permitType" class="dsel-fit"></select>
       </div>
       <div class="field" id="subTypeWrap" style="margin-bottom:12px;display:none">
         <label id="subTypeLabel">ลักษณะที่ขออนุญาต</label>
         <div class="opt-row" id="subTypeChips"></div>
         <input type="hidden" id="f_subType">
       </div>
-      <div class="grid grid-4">
+      <input type="hidden" id="f_receivedFrom" value="ยื่นที่หมวดฯ">
+      <div class="grid grid-3">
         <div class="field">
           <label>วันที่รับเรื่อง <span class="req">*</span></label>
           <input type="date" id="f_dateReceived">
@@ -1353,15 +1378,6 @@ tr.route-editable:hover td{background:var(--amber-glow)}
         <div class="field">
           <label>ปีงบประมาณ</label>
           <select id="f_fiscalYear"></select>
-        </div>
-        <div class="field">
-          <label>รับเรื่องจาก</label>
-          <select id="f_receivedFrom">
-            <option value="ยื่นที่หมวดฯ">ผู้ขอยื่นที่หมวดฯ</option>
-            <option value="แขวงฯ ส่งมา">แขวงฯ ส่งมาให้ตรวจสอบ</option>
-            <option value="ระบบ e-services">ระบบ e-services</option>
-            <option value="อื่นๆ">อื่นๆ</option>
-          </select>
         </div>
         <div class="field">
           <label>เลขรับ / เลขที่หนังสือ</label>
@@ -1387,41 +1403,79 @@ tr.route-editable:hover td{background:var(--amber-glow)}
         <div class="opt-row" id="applicantTypeChips"></div>
         <input type="hidden" id="f_applicantType" value="บุคคลธรรมดา">
       </div>
-      <div class="grid grid-3">
-        <div class="field">
-          <label>ชื่อ-นามสกุลผู้ขอ <span class="req">*</span></label>
-          <input type="text" id="f_applicantName" placeholder="ผู้ลงนามในคำขอ">
-        </div>
-        <div class="field" id="orgNameWrap" style="display:none">
-          <label id="orgNameLabel">ชื่อบริษัท / หน่วยงาน</label>
-          <input type="text" id="f_orgName">
-        </div>
-        <div class="field">
-          <label>เบอร์โทรติดต่อ</label>
-          <input type="text" id="f_applicantPhone" inputmode="tel">
-        </div>
-      </div>
-      <div class="grid grid-2" style="margin-top:12px">
-        <div class="field">
-          <label>ที่อยู่ผู้ขอ</label>
-          <input type="text" id="f_applicantAddress">
-        </div>
-        <div class="field">
-          <label>มอบอำนาจให้ผู้อื่นดำเนินการแทน</label>
-          <select id="f_hasProxy">
-            <option value="ไม่มี">ไม่มี — ผู้ขอยื่นเอง</option>
-            <option value="มี">มี — มอบอำนาจ</option>
+      <div class="party-block">
+        <div class="party-block-title pbt-grid"><span>ผู้ขออนุญาต</span>
+          <div class="seg" id="proxySeg">
+            <button type="button" data-v="ไม่มี">ผู้ขอยื่นเอง</button>
+            <button type="button" data-v="มี">มอบอำนาจ</button>
+          </div>
+          <select id="f_hasProxy" style="display:none">
+            <option value="ไม่มี">ไม่มี (ผู้ขอยื่นเอง)</option>
+            <option value="มี">มี (มอบอำนาจ)</option>
           </select>
         </div>
-      </div>
-      <div class="grid grid-2" id="proxyWrap" style="margin-top:12px;display:none">
-        <div class="field">
-          <label>ชื่อผู้รับมอบอำนาจ</label>
-          <input type="text" id="f_proxyName">
+        <div class="addr-grid" id="applicantGrid">
+          <div class="field a-name">
+            <label>ชื่อ-นามสกุล <span class="req">*</span></label>
+            <input type="text" id="f_applicantName" placeholder="ผู้ลงนามในคำขอ">
+          </div>
+          <div class="field a-org" id="orgNameWrap" style="display:none">
+            <label id="orgNameLabel">ชื่อบริษัท / หน่วยงาน</label>
+            <input type="text" id="f_orgName">
+          </div>
+          <div class="field a-phone">
+            <label>เบอร์โทร</label>
+            <input type="text" id="f_applicantPhone" inputmode="tel" autocomplete="off">
+          </div>
+          <div class="field a-house">
+            <label>บ้านเลขที่</label>
+            <input type="text" id="f_addrHouse">
+          </div>
+          <div class="field a-moo">
+            <label>หมู่</label>
+            <input type="text" id="f_addrMoo" inputmode="numeric">
+          </div>
+          <div class="field a-street">
+            <label>ซอย / ถนน</label>
+            <input type="text" id="f_addrStreet">
+          </div>
+          <div class="field a-tam">
+            <label>ตำบล</label>
+            <input type="text" id="f_addrTam" list="dlTam" autocomplete="off">
+          </div>
+          <div class="field a-chip">
+            <label>อำเภอ · จังหวัด · รหัสไปรษณีย์</label>
+            <div class="addr-chip empty" id="addrChip"><span id="addrChipText"></span><span class="chip-edit" id="addrChipEdit" role="button" tabindex="0">แก้</span></div>
+          </div>
         </div>
-        <div class="field">
-          <label>เบอร์โทรผู้รับมอบอำนาจ</label>
-          <input type="text" id="f_proxyPhone" inputmode="tel">
+        <div class="addr-grid addr-manual" id="addrManual" style="display:none">
+          <div class="field a-prov">
+            <label>จังหวัด</label>
+            <input type="text" id="f_addrProv" list="dlProv" placeholder="ระยอง" autocomplete="off">
+          </div>
+          <div class="field a-amp">
+            <label>อำเภอ</label>
+            <input type="text" id="f_addrAmp" list="dlAmp" placeholder="เมืองระยอง" autocomplete="off">
+          </div>
+          <div class="field a-zip">
+            <label>รหัสไปรษณีย์</label>
+            <input type="text" id="f_addrZip" inputmode="numeric" maxlength="5" placeholder="21000">
+          </div>
+        </div>
+        <input type="hidden" id="f_applicantAddress">
+        <datalist id="dlProv"></datalist><datalist id="dlAmp"></datalist><datalist id="dlTam"></datalist>
+      </div>
+      <div class="party-block" id="proxyWrap" style="display:none">
+        <div class="party-block-title"><span>ผู้รับมอบอำนาจ</span></div>
+        <div class="addr-grid">
+          <div class="field a-name">
+            <label>ชื่อ-นามสกุล</label>
+            <input type="text" id="f_proxyName">
+          </div>
+          <div class="field a-phone">
+            <label>เบอร์โทร</label>
+            <input type="text" id="f_proxyPhone" inputmode="tel" autocomplete="off">
+          </div>
         </div>
       </div>
     </div>
@@ -1517,7 +1571,7 @@ tr.route-editable:hover td{background:var(--amber-glow)}
       <div id="nearBox"></div>
     </div>
 
-    <div class="card" id="fsec4">
+    <div class="card" id="fsec4" style="display:none">
       <div class="section-title" style="justify-content:space-between">
         <span style="display:flex;align-items:center;gap:8px"><span class="num">4</span> เอกสารหลักฐาน <span class="sub" id="docSetHint"></span></span>
         <button type="button" class="btn btn-outline btn-sm" id="btnDocAll">✓ ติ๊กครบทุกข้อ</button>
@@ -1526,14 +1580,14 @@ tr.route-editable:hover td{background:var(--amber-glow)}
       <div class="doc-list" id="docList"><p class="hint">เลือกประเภทงานขออนุญาตก่อน ระบบจะแสดงรายการเอกสารตามคู่มือให้</p></div>
     </div>
 
-    <div class="card" id="fsec5">
-      <div class="section-title"><span class="num">5</span> ขั้นตอนการดำเนินงาน <span class="sub">ลงวันที่เมื่อทำเสร็จแต่ละขั้น (ตามผังกระบวนงาน)</span></div>
+    <div class="card" id="fsec5" style="display:none">
+      <div class="section-title"><span class="num">4</span> ขั้นตอนการดำเนินงาน <span class="sub">ลงวันที่เมื่อทำเสร็จแต่ละขั้น (ตามผังกระบวนงาน)</span></div>
       <div class="step-list" id="stepList"></div>
       <div class="deadline-box" id="deadlineBox"></div>
     </div>
 
     <div class="card" id="fsec6">
-      <div class="section-title"><span class="num">6</span> ผลการพิจารณา <span class="sub">กรอกเมื่อได้รับผลจากแขวงฯ</span></div>
+      <div class="section-title"><span class="num">4</span> ผลการพิจารณา <span class="sub">กรอกเมื่อได้รับผลจากแขวงฯ</span></div>
       <div class="grid grid-4">
         <div class="field">
           <label>ผลการพิจารณา</label>
@@ -3875,14 +3929,12 @@ const APPLICANT_TYPES = ['บุคคลธรรมดา', 'นิติบ�
 function v(id){ const el = document.getElementById(id); return el ? el.value : ''; }
 function setV(id, val){ const el = document.getElementById(id); if (el) el.value = (val === null || val === undefined) ? '' : val; }
 
-// การ์ดเลือกประเภทงาน 7 ประเภท
+// ช่องเลือกประเภทงาน 7 ประเภท (ช่องเดียว กว้างตามชื่อที่ยาวสุด)
 function renderTypeGrid(){
-  const cur = v('f_permitType');
-  document.getElementById('typeGrid').innerHTML = PERMIT_TYPES.map(t => `
-    <button type="button" class="type-card${t.key === cur ? ' on' : ''}" data-type="${t.key}">
-      <span class="ti">${t.icon}</span>
-      <span><b>${escapeHtml(t.no + ' ' + t.short)}</b><small>มาตรา ${escapeHtml(t.section)} · ${escapeHtml(t.sets)}</small></span>
-    </button>`).join('');
+  const sel = document.getElementById('f_permitType');
+  if (!sel || sel.options.length) return;
+  sel.innerHTML = '<option value="">— เลือกประเภทงาน —</option>' +
+    PERMIT_TYPES.map(t => `<option value="${t.key}">${escapeHtml(t.no + ' ' + t.short)}</option>`).join('');
 }
 function renderSubTypeChips(){
   const t = typeOf(v('f_permitType'));
@@ -3901,6 +3953,7 @@ function renderApplicantTypeChips(){
     `<button type="button" class="em-chip${s === cur ? ' on' : ''}" data-at="${escapeHtml(s)}">${escapeHtml(s)}</button>`).join('');
   const wrap = document.getElementById('orgNameWrap');
   wrap.style.display = cur === 'บุคคลธรรมดา' ? 'none' : '';
+  document.getElementById('applicantGrid').classList.toggle('has-org', cur !== 'บุคคลธรรมดา');
   document.getElementById('orgNameLabel').textContent = cur === 'นิติบุคคล' ? 'ชื่อบริษัท / ห้างหุ้นส่วน' : 'ชื่อหน่วยงาน (เช่น กฟภ., กปภ., อบต.)';
 }
 // แสดง/ซ่อนช่องที่ใช้เฉพาะบางประเภทงาน
@@ -3910,6 +3963,7 @@ function updateConditionalFields(){
   document.getElementById('landOwnerNameWrap').style.display = (type === 'access' && v('f_landOwnerSame') === 'ไม่ใช่') ? '' : 'none';
   document.getElementById('waterwayWrap').style.display = type === 'drainConnect' ? '' : 'none';
   document.getElementById('proxyWrap').style.display = v('f_hasProxy') === 'มี' ? '' : 'none';
+  syncProxySeg();
   document.getElementById('cancelReasonWrap').style.display = document.getElementById('f_cancelled').checked ? '' : 'none';
   const res = v('f_result');
   document.getElementById('copyReceivedLabel').textContent = res === 'ไม่อนุญาต'
@@ -4115,7 +4169,7 @@ function requestCloseForm(){
   document.getElementById('fmLeaveStay').focus();
 }
 /* แถบเส้นเวลา (ขั้นตอนฟอร์ม) — กดเลื่อนไปส่วนนั้น ไฮไลต์ตามตำแหน่งที่เลื่อน และบอกสถานะช่องบังคับของแต่ละส่วน */
-const FM_STEPS = [['fsec1', 'ประเภทงาน'], ['fsec2', 'ผู้ขอ'], ['fsec3', 'สถานที่'], ['fsec4', 'เอกสาร'], ['fsec5', 'ขั้นตอน'], ['fsec6', 'ผลพิจารณา']];
+const FM_STEPS = [['fsec1', 'ประเภทงาน'], ['fsec2', 'ผู้ขอ'], ['fsec3', 'สถานที่'], ['fsec6', 'ผลพิจารณา']];
 let fmStepsBuilt = false;
 function fmCards(){ return FM_STEPS.map(s => document.getElementById(s[0])); }
 function fmStepGo(i){
@@ -4157,6 +4211,166 @@ function fmStepsRefresh(){
   });
   wrap.querySelectorAll('.fm-ln').forEach((l, i) => l.classList.toggle('ok', states[i] === 'ok'));
 }
+/* ===== ที่อยู่ผู้ขอ: แยกช่องย่อย แล้วรวมเป็นข้อความเดียวเก็บใน applicantAddress (ข้อมูลเดิมยังใช้ได้) ===== */
+const ADDR_PROVINCES = ['กรุงเทพมหานคร','กระบี่','กาญจนบุรี','กาฬสินธุ์','กำแพงเพชร','ขอนแก่น','จันทบุรี','ฉะเชิงเทรา','ชลบุรี','ชัยนาท','ชัยภูมิ','ชุมพร','เชียงราย','เชียงใหม่','ตรัง','ตราด','ตาก','นครนายก','นครปฐม','นครพนม','นครราชสีมา','นครศรีธรรมราช','นครสวรรค์','นนทบุรี','นราธิวาส','น่าน','บึงกาฬ','บุรีรัมย์','ปทุมธานี','ประจวบคีรีขันธ์','ปราจีนบุรี','ปัตตานี','พระนครศรีอยุธยา','พังงา','พัทลุง','พิจิตร','พิษณุโลก','เพชรบุรี','เพชรบูรณ์','แพร่','พะเยา','ภูเก็ต','มหาสารคาม','มุกดาหาร','แม่ฮ่องสอน','ยโสธร','ยะลา','ร้อยเอ็ด','ระนอง','ระยอง','ราชบุรี','ลพบุรี','ลำปาง','ลำพูน','เลย','ศรีสะเกษ','สกลนคร','สงขลา','สตูล','สมุทรปราการ','สมุทรสงคราม','สมุทรสาคร','สระแก้ว','สระบุรี','สิงห์บุรี','สุโขทัย','สุพรรณบุรี','สุราษฎร์ธานี','สุรินทร์','หนองคาย','หนองบัวลำภู','อ่างทอง','อำนาจเจริญ','อุดรธานี','อุตรดิตถ์','อุทัยธานี','อุบลราชธานี'];
+const ADDR_RAYONG = {
+  'เมืองระยอง': ['ท่าประดู่','เชิงเนิน','ตะพง','ปากน้ำ','เพ','บ้านแลง','นาตาขวัญ','เนินพระ','กะเฉด','ทับมา','น้ำคอก','มาบตาพุด'],
+  'บ้านฉาง': ['บ้านฉาง','พลา','สำนักท้อน'],
+  'ปลวกแดง': ['ปลวกแดง','ตาสิทธิ์','ละหาร','แม่น้ำคู้','มาบยางพร'],
+  'แกลง': [], 'วังจันทร์': [], 'บ้านค่าย': [], 'เขาชะเมา': [], 'นิคมพัฒนา': []
+};
+const ADDR_DEFAULT_PROV = 'ระยอง';
+const ADDR_TAM_AMP = {};
+Object.keys(ADDR_RAYONG).forEach(a => ADDR_RAYONG[a].forEach(t => { ADDR_TAM_AMP[t] = a; }));
+const ADDR_TAM_ZIP = { 'เชิงเนิน':'21000','ท่าประดู่':'21000','ตะพง':'21000','ปากน้ำ':'21000','น้ำคอก':'21000','ทับมา':'21000','เนินพระ':'21150','มาบตาพุด':'21150','เพ':'21160' };
+const ADDR_LISTS = {};
+function addrEl(id){ return document.getElementById('f_addr' + id); }
+function fillDatalist(id, items){
+  ADDR_LISTS[id] = items;
+  const dl = document.getElementById(id);
+  if (dl) dl.innerHTML = items.map(x => '<option value="' + escapeHtml(x) + '"></option>').join('');
+}
+// ช่องพิมพ์ + เมนูเลือก (เมนูขาว ติ๊กถูกสีส้ม) พิมพ์ชื่ออื่นเองได้เสมอ
+function enhanceCombo(input, listId){
+  if (input._combo) return;
+  input._combo = true; input.removeAttribute('list');
+  const wrap = document.createElement('div'); wrap.className = 'dsel dcombo'; wrap.style.position = 'relative';
+  input.parentNode.insertBefore(wrap, input); wrap.appendChild(input);
+  input.style.paddingRight = '28px';
+  const caret = document.createElement('span'); caret.className = 'dsel-caret'; caret.setAttribute('aria-hidden', 'true'); caret.textContent = '▾';
+  caret.style.cssText = 'position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer';
+  const menu = document.createElement('div'); menu.className = 'dsel-menu'; menu.style.display = 'none'; menu.setAttribute('role', 'listbox');
+  wrap.appendChild(caret); wrap.appendChild(menu);
+  let active = -1, shown = [];
+  const isOpen = () => menu.style.display !== 'none';
+  const paint = () => {
+    [...menu.children].forEach((el, i) => el.classList.toggle('active', i === active));
+    const el = menu.children[active]; if (el) el.scrollIntoView({ block: 'nearest' });
+  };
+  const close = () => { menu.style.display = 'none'; active = -1; };
+  const open = (filter) => {
+    const all = ADDR_LISTS[listId] || [], q = input.value.trim();
+    shown = filter && q ? all.filter(x => x.indexOf(q) >= 0) : all;
+    if (!shown.length) { close(); return; }
+    closeAllDropdownMenus(menu);
+    menu.innerHTML = shown.map((x, i) => `<div class="it-dd-item dsel-item${x === q ? ' sel' : ''}" data-i="${i}" role="option">${escapeHtml(x)}${x === q ? '<span class="dsel-tick">✓</span>' : ''}</div>`).join('');
+    menu.style.display = '';
+    active = shown.indexOf(q); paint();
+  };
+  const choose = (i) => {
+    if (i < 0 || i >= shown.length) return;
+    input.value = shown[i]; close();
+    input.dispatchEvent(new Event('input', { bubbles: true })); input.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+  input.addEventListener('focus', () => open(false));
+  input.addEventListener('input', () => open(true));
+  input.addEventListener('blur', () => setTimeout(close, 120));
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (!isOpen()) { open(false); return; }
+      active = e.key === 'ArrowDown' ? Math.min(shown.length - 1, active + 1) : Math.max(0, active - 1); paint();
+    } else if (e.key === 'Enter' && isOpen() && active >= 0) { e.preventDefault(); choose(active); }
+    else if (e.key === 'Escape' || e.key === 'Tab') close();
+  });
+  menu.addEventListener('mousedown', (e) => { e.preventDefault(); });
+  menu.addEventListener('click', (e) => { e.stopPropagation(); const el = e.target.closest('.dsel-item'); if (el) choose(Number(el.dataset.i)); });
+  caret.addEventListener('mousedown', (e) => { e.preventDefault(); if (isOpen()) close(); else { input.focus(); open(false); } });
+}
+function addrRefreshLists(){
+  const prov = addrEl('Prov').value.trim(), amp = addrEl('Amp').value.trim();
+  const isRy = prov === ADDR_DEFAULT_PROV;
+  fillDatalist('dlAmp', isRy ? Object.keys(ADDR_RAYONG) : []);
+  fillDatalist('dlTam', isRy && ADDR_RAYONG[amp] ? ADDR_RAYONG[amp] : (!amp && (!prov || isRy) ? Object.keys(ADDR_TAM_AMP) : []));
+}
+function addrAutofillFromTam(){
+  const t = addrEl('Tam').value.trim(), amp = ADDR_TAM_AMP[t];
+  if (!amp) return false;
+  addrEl('Amp').value = amp; addrEl('Prov').value = ADDR_DEFAULT_PROV;
+  addrEl('Zip').value = ADDR_TAM_ZIP[t] || '';
+  return true;
+}
+function addrChipRender(){
+  const parts = [addrEl('Amp').value.trim(), addrEl('Prov').value.trim(), addrEl('Zip').value.trim()].filter(Boolean);
+  const chip = document.getElementById('addrChip'), tx = document.getElementById('addrChipText');
+  if (!chip || !tx) return;
+  chip.classList.toggle('empty', !parts.length);
+  tx.innerHTML = parts.length ? '<span class="ok">✓</span> ' + escapeHtml(parts.join(' · ')) : 'เลือกตำบล ระบบเติมให้';
+}
+function addrCompose(){
+  const g = k => addrEl(k).value.trim();
+  const house = g('House'), moo = g('Moo'), street = g('Street'), tam = g('Tam'), amp = g('Amp'), prov = g('Prov'), zip = g('Zip');
+  if (!house && !moo && !street && !tam && !amp && !zip && (!prov || prov === ADDR_DEFAULT_PROV)) return '';
+  const bkk = prov === 'กรุงเทพมหานคร';
+  const parts = [];
+  if (house) parts.push(house);
+  if (moo) parts.push('ม.' + moo.replace(/^ม\.?\s*/, ''));
+  if (street) parts.push(street);
+  if (tam) parts.push((bkk ? 'แขวง' : 'ต.') + tam.replace(/^(ต\.|ตำบล|แขวง)\s*/, ''));
+  if (amp) parts.push((bkk ? 'เขต' : 'อ.') + amp.replace(/^(อ\.|อำเภอ|เขต)\s*/, ''));
+  if (prov) parts.push((bkk ? '' : 'จ.') + prov.replace(/^(จ\.|จังหวัด)\s*/, ''));
+  if (zip) parts.push(zip);
+  return parts.join(' ');
+}
+function addrSync(){
+  document.getElementById('f_applicantAddress').value = addrCompose();
+  addrChipRender();
+}
+// แยกที่อยู่เดิมที่เป็นข้อความเดียวลงช่องย่อย — แยกไม่ได้ให้ใส่ไว้ในช่อง ซอย/ถนน ทั้งหมด
+function addrParse(text){
+  let s = String(text || '').trim();
+  ['House','Moo','Street','Prov','Amp','Tam','Zip'].forEach(k => { addrEl(k).value = ''; });
+  if (s) {
+    const take = (re) => { const m = re.exec(s); if (!m) return ''; s = (s.slice(0, m.index) + ' ' + s.slice(m.index + m[0].length)).trim(); return m[1].trim(); };
+    const zip = take(/(?:^|\s)(\d{5})(?=\s|$)/);
+    const prov = take(/(?:จ\.|จังหวัด)\s*([^\s]+)/);
+    const amp = take(/(?:อ\.|อำเภอ|เขต)\s*([^\s]+)/);
+    const tam = take(/(?:ต\.|ตำบล|แขวง)\s*([^\s]+)/);
+    const moo = take(/(?:ม\.|หมู่ที่|หมู่)\s*(\d+)/);
+    let house = '';
+    const hm = /^(\d+(?:\/\d+)?)(?:\s+|$)/.exec(s);
+    if (hm) { house = hm[1]; s = s.slice(hm[0].length).trim(); }
+    addrEl('House').value = house; addrEl('Moo').value = moo; addrEl('Street').value = s.replace(/\s+/g, ' ');
+    addrEl('Prov').value = prov; addrEl('Amp').value = amp; addrEl('Tam').value = tam; addrEl('Zip').value = zip;
+  }
+  addrRefreshLists();
+  addrSync();
+  addrManualToggle(false);
+}
+function addrManualToggle(force){
+  const box = document.getElementById('addrManual'), ed = document.getElementById('addrChipEdit');
+  const open = typeof force === 'boolean' ? force : box.style.display === 'none';
+  box.style.display = open ? '' : 'none';
+  ed.textContent = open ? 'ปิด' : 'แก้';
+}
+function syncProxySeg(){
+  const val = v('f_hasProxy');
+  document.querySelectorAll('#proxySeg button').forEach(b => b.classList.toggle('on', b.dataset.v === val));
+}
+function initAddressFields(){
+  fillDatalist('dlProv', ADDR_PROVINCES);
+  enhanceCombo(addrEl('Prov'), 'dlProv'); enhanceCombo(addrEl('Amp'), 'dlAmp'); enhanceCombo(addrEl('Tam'), 'dlTam');
+  addrRefreshLists();
+  ['House','Moo','Street','Prov','Amp','Tam','Zip'].forEach(k => {
+    addrEl(k).addEventListener('input', () => { addrRefreshLists(); addrSync(); });
+  });
+  addrEl('Zip').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5); });
+  addrEl('Prov').addEventListener('focus', e => { if (!e.target.value) { e.target.value = ADDR_DEFAULT_PROV; addrRefreshLists(); addrSync(); } });
+  addrEl('Tam').addEventListener('input', () => { if (addrAutofillFromTam()) { addrRefreshLists(); addrSync(); } });
+  addrEl('Tam').addEventListener('change', () => {
+    const t = addrEl('Tam').value.trim();
+    if (t && !ADDR_TAM_AMP[t] && !addrEl('Amp').value.trim()) addrManualToggle(true);
+    else if (t && ADDR_TAM_AMP[t] && !addrEl('Zip').value.trim()) addrManualToggle(true);
+  });
+  const ed = document.getElementById('addrChipEdit');
+  ed.addEventListener('click', () => addrManualToggle());
+  ed.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); addrManualToggle(); } });
+  document.querySelectorAll('#proxySeg button').forEach(b => b.addEventListener('click', () => {
+    const sel = document.getElementById('f_hasProxy');
+    sel.value = b.dataset.v;
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
+  }));
+}
 function clearForm(){
   closeFormModal();
   editingId = null;
@@ -4177,6 +4391,7 @@ function clearForm(){
   setV('f_receivedFrom', 'ยื่นที่หมวดฯ');
   setV('f_applicantType', APPLICANT_TYPES[0]);
   setV('f_hasProxy', 'ไม่มี');
+  addrParse('');
   setV('f_landOwnerSame', 'ใช่');
   setV('f_mortgaged', 'ไม่มี');
   setV('f_toWaterway', 'ไม่ใช่');
@@ -4220,6 +4435,7 @@ function loadRecordIntoForm(rec){
   setV('f_dateReceived', rec.dateReceived || '');
   setV('f_applicantType', rec.applicantType || APPLICANT_TYPES[0]);
   setV('f_hasProxy', rec.hasProxy || 'ไม่มี');
+  addrParse(rec.applicantAddress || '');
   setV('f_landOwnerSame', rec.landOwnerSame || 'ใช่');
   setV('f_mortgaged', rec.mortgaged || 'ไม่มี');
   setV('f_toWaterway', rec.toWaterway || 'ไม่ใช่');
@@ -4301,7 +4517,7 @@ async function saveForm(){
   const kmEndText = thaiDigits(v('f_kmEnd')).trim();
   const kmEnd = kmEndText ? parseKm(kmEndText) : null;
   const applicantName = v('f_applicantName').trim();
-  if (!permitType) { showToast('กรุณาเลือกประเภทงานขออนุญาต'); focusField('typeGrid'); return; }
+  if (!permitType) { showToast('กรุณาเลือกประเภทงานขออนุญาต'); focusField('f_permitType'); return; }
   if (!dateReceived) { showToast('กรุณากรอกวันที่รับเรื่อง'); focusField('f_dateReceived'); return; }
   if (!applicantName) { showToast('กรุณากรอกชื่อผู้ขออนุญาต'); focusField('f_applicantName'); return; }
   if (!highway) { showToast('กรุณาเลือกทางหลวง (ทล.)'); focusField('f_highway'); return; }
@@ -4400,10 +4616,9 @@ async function markNextStepToday(id){
 function initFormUi(){
   renderStepList();
   // เลือกประเภทงาน / ลักษณะ / ประเภทผู้ขอ
-  document.getElementById('typeGrid').addEventListener('click', (e) => {
-    const b = e.target.closest('[data-type]');
-    if (!b) return;
-    setV('f_permitType', b.dataset.type);
+  renderTypeGrid();
+  initAddressFields();
+  document.getElementById('f_permitType').addEventListener('change', () => {
     renderFormDynamic();
   });
   document.getElementById('subTypeChips').addEventListener('click', (e) => {
