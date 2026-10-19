@@ -4807,7 +4807,7 @@ function renderTable(){
     </tr>`;
   }).join('');
   tbody.querySelectorAll('tr[data-i]').forEach(tr => {
-    tr.addEventListener('click', () => { const rec = rows[Number(tr.dataset.i)]; if (rec) openCaseDetailModal(rec.id); });
+    tr.addEventListener('dblclick', () => { const rec = rows[Number(tr.dataset.i)]; if (rec) openCaseDetailModal(rec.id); });
   });
 }
 function goToFilteredList(opts){
