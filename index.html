@@ -952,9 +952,9 @@ tr.route-editable:hover td{background:var(--amber-glow)}
 .cd-tile .cd-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:16px;flex:none}
 .cd-tile.warn .cd-ic{background:var(--spot2-bg)}.cd-tile.ok .cd-ic{background:var(--green-bg)}.cd-tile.bad .cd-ic{background:var(--rust-bg)}.cd-tile.n .cd-ic{background:var(--paper-2)}
 .cd-tile b{display:block;font-size:14px;line-height:1.3}.cd-tile span{font-size:12px;color:var(--ink-mute)}
-/* เส้นความคืบหน้าของเรื่อง 8 ขั้น: เขียว = เสร็จแล้ว · ส้ม = ยังไม่เสร็จ · แดง = เลยกำหนดส่ง/ไม่อนุญาต · เทา = ยกเลิก/ไม่ระบุ */
-.cd-prog{display:flex;align-items:stretch;gap:14px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:14px}
-.cd-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(8,1fr);flex:1;min-width:0}
+/* เส้นความคืบหน้าของเรื่อง 7 ขั้น: เขียว = เสร็จแล้ว · ส้ม = ยังไม่เสร็จ · แดง = เลยกำหนดส่ง/ไม่อนุญาต · เทา = ยกเลิก/ไม่ระบุ */
+.cd-prog{display:flex;align-items:stretch;gap:14px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 20px;margin-bottom:14px}
+.cd-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(7,1fr);flex:1;min-width:0}
 .cd-st{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;min-width:0;padding:0 3px}
 .cd-st::before{content:'';position:absolute;top:13px;left:-50%;width:100%;height:3px;background:var(--line);z-index:0}
 .cd-st:first-child::before{display:none}
@@ -1880,7 +1880,7 @@ tr.route-editable:hover td{background:var(--amber-glow)}
    ระบบงานขออนุญาตดำเนินการใดๆ ในเขตทางหลวง — หมวดทางหลวงเชิงเนิน
    โคลนโครงจากระบบงานโจรกรรม (ล็อกอิน ทีม สิทธิ์ ถังขยะ สายทาง เขตพื้นที่ ส่งออก Excel/PDF)
    เนื้องานอ้างอิง "คู่มือ งานขออนุญาตดำเนินการใดๆในเขตทาง.pdf":
-     - ผังกระบวนงาน 7 ขั้น (รับเอกสาร → ตรวจเอกสาร → ตรวจสอบ/พิจารณา → จัดทำบันทึก → ลงนาม → ออกเลข/นำส่ง/ลง e-services → เก็บสำเนา)
+     - ผังกระบวนงาน 6 ขั้น (รับเอกสาร → ตรวจเอกสาร → ตรวจสอบ/พิจารณา → จัดทำบันทึก → ลงนาม → ออกเลข/นำส่ง/ลง e-services)
      - ประเภทงาน 7 ประเภท (1–7) พร้อมมาตราและเอกสารหลักฐานของแต่ละประเภท
      - กำหนดส่ง: ภายใน 3 วัน นับตั้งแต่เอกสารถูกต้องและครบถ้วน (ระบบนับเป็นวันทำการ จันทร์–ศุกร์)
    ========================================================================== */
@@ -2000,8 +2000,8 @@ const STEPS = [
   { field: 'inspectedDate',  label: 'ตรวจสอบพื้นที่ / พิจารณา',                     wait: 'รอตรวจสอบพื้นที่/พิจารณา', who: 'หัวหน้าหมวดการทาง',  desc: 'นัดหมายผู้ขอและผู้เกี่ยวข้องตรวจสอบพื้นที่ที่ขออนุญาต' },
   { field: 'memoDate',       label: 'จัดทำบันทึกพร้อมเอกสาร',                       wait: 'รอจัดทำบันทึก',           who: 'ธุรการหมวดการทาง',   desc: 'บันทึกข้อความพร้อมเอกสารหลักฐาน เสนอหัวหน้าหมวดการทาง' },
   { field: 'signedDate',     label: 'ลงนาม',                                       wait: 'รอลงนาม',                who: 'หัวหน้าหมวดการทาง',  desc: 'ลงนามเพื่อนำเสนอผู้บังคับบัญชาต่อไป' },
-  { field: 'sentDate',       label: 'ออกเลข / ทำสำเนา / ลงสมุดส่ง / นำส่ง + ลงข้อมูล e-services', wait: 'รอออกเลข/นำส่ง', who: 'ธุรการหมวดการทาง', desc: 'ลงข้อมูลในระบบ ' + E_SERVICE_URL },
-  { field: 'archivedDate',   label: 'เก็บสำเนาเอกสาร',                             wait: 'รอเก็บสำเนา',            who: 'ธุรการหมวดการทาง',   desc: 'จัดเก็บเฉพาะบันทึกนำส่งเรื่อง 1 ฉบับ' }
+  { field: 'sentDate',       label: 'ออกเลข / ทำสำเนา / ลงสมุดส่ง / นำส่ง + ลงข้อมูล e-services', wait: 'รอออกเลข/นำส่ง', who: 'ธุรการหมวดการทาง', desc: 'ลงข้อมูลในระบบ ' + E_SERVICE_URL }
+  // ขั้น "เก็บสำเนาเอกสาร" (archivedDate) ตัดออกแล้ว — ข้อมูลเดิมยังเก็บไว้ในเรื่อง ไม่ลบ
 ];
 const SENT_STEP = STEPS.findIndex(s => s.field === 'sentDate');
 // ขั้นปัจจุบัน = ลำดับขั้นสุดท้ายที่ลงวันที่แล้ว (-1 = ยังไม่มีขั้นใดเลย)
@@ -4122,10 +4122,6 @@ function renderStepList(){
         <div class="field"><label>เลขอ้างอิงในระบบ e-services</label><input type="text" id="f_eServiceRef"></div>
         <label class="chk-inline" style="grid-column:1/-1"><input type="checkbox" id="f_eServiceDone"> ลงข้อมูลในระบบ e-services กรมทางหลวงแล้ว</label>
       </div>`;
-    if (s.field === 'archivedDate') extra = `
-      <div class="step-extra g2">
-        <div class="field"><label>ที่เก็บสำเนา (แฟ้ม/ตู้)</label><input type="text" id="f_storageLocation" placeholder="เช่น แฟ้มขออนุญาต ปีงบ 2569 เล่ม 1"></div>
-      </div>`;
     return `
     <div class="step-row" data-step="${i}">
       <span class="step-no">${i + 1}</span>
@@ -4686,7 +4682,7 @@ async function saveForm(){
     appointDate: v('f_appointDate'), inspectResult: v('f_inspectResult'), inspectNote: v('f_inspectNote').trim(),
     outLetterNo: v('f_outLetterNo').trim(), eServiceRef: v('f_eServiceRef').trim(),
     eServiceDone: document.getElementById('f_eServiceDone').checked,
-    storageLocation: v('f_storageLocation').trim(),
+    storageLocation: oldRec ? (oldRec.storageLocation || '') : '',  // ช่องที่เก็บสำเนาตัดออกแล้ว คงค่าเดิมไว้
     result, resultDate: result ? v('f_resultDate') : '', permitNo: v('f_permitNo').trim(), permitDate: v('f_permitDate'),
     validFrom: v('f_validFrom'), validTo: v('f_validTo'),
     copyReceived: document.getElementById('f_copyReceived').checked,
@@ -4698,6 +4694,7 @@ async function saveForm(){
     updatedAt: now
   };
   STEPS.forEach(s => { rec[s.field] = snap[s.field] || ''; });
+  if (oldRec && oldRec.archivedDate) rec.archivedDate = oldRec.archivedDate;
   rec.dateReceived = dateReceived;
   if (result && !rec.resultDate) rec.resultDate = todayYmd();
 
@@ -5144,9 +5141,9 @@ function openCaseDetailModal(id){
   const dp = docProgress(rec);
   const endDate = rec.resultDate || (isCancelled(rec) ? (rec.updatedAt || '').slice(0, 10) : todayYmd());
   const days = daysBetween(rec.dateReceived, endDate);
-  // เส้นความคืบหน้า 8 ขั้น = 7 ขั้นตอนตาม STEPS + ผลพิจารณา
+  // เส้นความคืบหน้า 7 ขั้น = 6 ขั้นตอนตาม STEPS + ผลพิจารณา
   //   เขียว ✓ = ทำแล้ว · ส้ม ! = ยังไม่ทำ · แดง ! = เลยกำหนดส่ง (3 วันทำการนับจากวันตรวจเอกสารครบ — ใช้ deadlineInfo เดิม) หรือไม่อนุญาต · เทา = ยกเลิก/ไม่ระบุ
-  const SHORT_STEP = { dateReceived: 'รับเอกสาร', docCheckedDate: 'ตรวจเอกสาร', inspectedDate: 'ตรวจพื้นที่', memoDate: 'จัดทำบันทึก', signedDate: 'ลงนาม', sentDate: 'ส่งแขวง', archivedDate: 'เก็บสำเนา' };
+  const SHORT_STEP = { dateReceived: 'รับเอกสาร', docCheckedDate: 'ตรวจเอกสาร', inspectedDate: 'ตรวจพื้นที่', memoDate: 'จัดทำบันทึก', signedDate: 'ลงนาม', sentDate: 'ส่งแขวง' };
   const stepLi = (cls, label, sub, note) => `<li class="cd-st ${cls}"><span class="cd-dot">${cls === 'ok' ? '✓' : (cls === 'n' ? '–' : '!')}</span><b>${escapeHtml(label)}</b><span class="cd-ss">${sub}</span>${note ? `<span class="cd-sn">${note}</span>` : ''}</li>`;
   const progSteps = STEPS.map(s => {
     const d = normalizeDateStr(rec[s.field]);
@@ -5176,7 +5173,6 @@ function openCaseDetailModal(id){
     let sub = done ? escapeHtml(thaiDateFull(rec[s.field])) + ' · ' + escapeHtml(s.who) : (i === next && !isClosed(rec) ? 'ขั้นถัดไป · ' + escapeHtml(s.who) : escapeHtml(s.who));
     if (s.field === 'inspectedDate' && (rec.appointDate || rec.inspectResult)) sub += '<br>' + [rec.appointDate ? 'นัดตรวจ ' + escapeHtml(formatThaiDateFull(rec.appointDate)) : '', rec.inspectResult ? 'ความเห็น: ' + escapeHtml(rec.inspectResult) : ''].filter(Boolean).join(' · ') + (rec.inspectNote ? '<br>' + escapeHtml(rec.inspectNote) : '');
     if (s.field === 'sentDate' && done) sub += '<br>' + [rec.outLetterNo ? 'หนังสือ ' + escapeHtml(rec.outLetterNo) : 'ยังไม่ระบุเลขหนังสือส่ง', rec.eServiceDone ? '✓ ลง e-services แล้ว' + (rec.eServiceRef ? ' (' + escapeHtml(rec.eServiceRef) + ')' : '') : '✗ ยังไม่ลง e-services'].join(' · ');
-    if (s.field === 'archivedDate' && rec.storageLocation) sub += '<br>ที่เก็บ: ' + escapeHtml(rec.storageLocation);
     return `<li class="${cls}"><span class="tl-dot">${done ? '✓' : i + 1}</span><div class="tl-name">${escapeHtml(s.label)}</div><div class="tl-sub">${sub}</div></li>`;
   }).join('')}</ul>`;
   const docsHtml = requiredDocs(rec).map(d => {
@@ -5545,7 +5541,7 @@ function renderGuide(){
   const flow = document.getElementById('guideFlow');
   // ผังตามเอกสาร "กระบวนงานขออนุญาตดำเนินการใดๆ ในเขตทาง": ขั้นที่ 3 (ตรวจสอบพิจารณา) เป็นขั้นตัดสินใจ — ข้อความย่อให้กระชับ
   const FLOW_DEC = [false, false, true, false, false, false, false];
-  const FLOW_TEXT = ['รับเอกสาร', 'ตรวจเอกสารหลักฐาน', 'ตรวจพื้นที่ พิจารณา', 'จัดทำบันทึก', 'ลงนาม', 'ออกเลข ส่ง ลง e-services', 'เก็บสำเนา'];
+  const FLOW_TEXT = ['รับเอกสาร', 'ตรวจเอกสารหลักฐาน', 'ตรวจพื้นที่ พิจารณา', 'จัดทำบันทึก', 'ลงนาม', 'ออกเลข ส่ง ลง e-services'];
   renderFlowRoundabout(flow, {
     title: 'ขออนุญาตในเขตทางหลวง',
     theme: ['#7E4FD0', '#46268F', 'cert'],
