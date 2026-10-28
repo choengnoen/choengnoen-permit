@@ -1023,6 +1023,23 @@ tr.route-editable:hover td{background:var(--amber-glow)}
 @media(max-width:720px){.step-row{grid-template-columns:34px minmax(0,1fr)}.step-row>input[type=date],.step-row>.step-date{grid-column:2}.step-extra,.step-extra.g2{grid-column:1/-1;grid-template-columns:1fr}}
 .deadline-box{margin-top:12px;padding:11px 14px;border-radius:12px;background:var(--paper);border:1px solid var(--line);font-size:13.5px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .deadline-box b{font-family:'Kanit',sans-serif}
+/* ผลการนำส่งเอกสาร — แบบเดียวกับระบบชี้แนวเขต: การ์ดวันครบกำหนดเด่นทางซ้าย · ช่องกรอกทางขวา */
+.send-a{display:grid;grid-template-columns:230px minmax(0,1fr);gap:16px;align-items:stretch}
+.send-hero{border-radius:14px;padding:16px;display:flex;flex-direction:column;justify-content:center;gap:4px;color:#fff;background:linear-gradient(135deg,#175f87,#08324c)}
+.send-hero small{color:rgba(255,255,255,.78);font-size:13px}
+.send-hero .big{font-size:44px;font-weight:700;line-height:1.05;font-family:'Kanit','Sarabun',sans-serif}
+.send-hero .big span{font-size:16px;font-weight:600;margin-left:4px;font-family:'Sarabun',sans-serif}
+.send-hero .big.due span{font-size:22px;font-family:'Kanit','Sarabun',sans-serif;margin-left:6px}
+.send-hero .sh-st{align-self:flex-start;margin:4px 0 2px;padding:3px 10px;border-radius:99px;background:rgba(255,255,255,.2);font-size:12.5px;font-weight:600;color:#fff}
+.send-hero.near{background:linear-gradient(135deg,#d9790f,#a3660a)}
+.send-hero.bad{background:linear-gradient(135deg,#d2503d,#9c2e20)}
+.send-hero.ontime{background:linear-gradient(135deg,#25a367,#14693d)}
+.send-hero.na{background:linear-gradient(135deg,#8792a0,#5d6875)}
+.send-right{display:grid;grid-template-columns:minmax(0,1fr) 180px;gap:12px;align-items:center;padding-right:56px;min-width:0}
+.send-right b{display:block;font-size:15px;font-weight:700;color:var(--ink)}
+.send-right .sr-sub{display:block;font-size:13px;color:var(--ink-soft);margin-top:2px}
+.send-right input[type=date]{width:100%;font-family:'Sarabun',sans-serif;font-size:14px;border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:#fff}
+@media(max-width:720px){.send-a{grid-template-columns:1fr}.send-right{grid-template-columns:1fr;padding-right:0}}
 .dl-pill{display:inline-block;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--paper-2);color:var(--ink-soft)}
 .dl-pill.ok{background:var(--green-bg);color:var(--green)}
 .dl-pill.near{background:var(--spot2-bg);color:var(--spot2-fg)}
@@ -1606,8 +1623,19 @@ tr.route-editable:hover td{background:var(--amber-glow)}
       <div class="deadline-box" id="deadlineBox"></div>
     </div>
 
+    <div class="card" id="fsecSend">
+      <div class="section-title"><span class="num">4</span> ผลการนำส่งเอกสาร</div>
+      <div class="send-a">
+        <div class="send-hero" id="sendHero"></div>
+        <div class="send-right">
+          <div><b>วันที่ส่งเอกสารไปแขวง</b><span class="sr-sub" id="sendSub"></span></div>
+          <span id="sendSlot"></span>
+        </div>
+      </div>
+    </div>
+
     <div class="card" id="fsec6">
-      <div class="section-title"><span class="num">4</span> ผลการพิจารณา <span class="sub">กรอกเมื่อได้รับผลจากแขวงฯ</span></div>
+      <div class="section-title"><span class="num">5</span> ผลการพิจารณา <span class="sub">กรอกเมื่อได้รับผลจากแขวงฯ</span></div>
       <div class="grid grid-4">
         <div class="field">
           <label>ผลการพิจารณา</label>
@@ -4123,7 +4151,41 @@ function refreshStepStates(){
   if (st.key === 'office' && snap.docCheckedDate && docProgress(snap).missing.length) {
     box.innerHTML += '<span class="dl-pill bad">เช็กลิสต์เอกสารยังไม่ครบ</span>';
   }
+  renderSendHero('รับเรื่อง', snap.dateReceived, snap.sentDate,
+    isCancelled(snap) ? 'ยกเลิก / ถอนเรื่อง' : (isDecided(snap) ? 'ได้ผลพิจารณาแล้ว' : ''));
   refreshDateHints();
+}
+/* การ์ดกำหนดส่งเอกสารถึงแขวง (แบบเดียวกับระบบชี้แนวเขต): ครบกำหนด = วันรับเรื่อง + 10 วันทำการ (นับแบบเดียวกับรายการร่าง/LINE)
+   วันครบกำหนดเป็นจุดเด่น · จำนวนวันทำการที่เหลือ/เกินเป็นป้ายรอง */
+const SEND_LIMIT_DAYS = 10;
+function renderSendHero(startLabel, start, sent, doneText){
+  const box = document.getElementById('sendHero');
+  if (!box) return;
+  const today = todayYmd();
+  let due = '';
+  try { if (start && window.DRAFTS) due = DRAFTS.addWorkdays(start, SEND_LIMIT_DAYS); } catch (e) { due = ''; }
+  let cls = '', head = 'ครบกำหนดส่งแขวง', big = '', st = '', foot = '';
+  if (!due) { cls = 'na'; head = 'ต้องส่งแขวงภายใน'; big = SEND_LIMIT_DAYS + '<span>วันทำการ</span>'; foot = 'นับจากวัน' + startLabel; }
+  else {
+    const p = formatThaiDate(due).split(' ');
+    big = escapeHtml(p[0]) + '<span>' + escapeHtml(p.slice(1).join(' ')) + '</span>';
+    if (sent) {
+      const late = -DRAFTS.workLeft(sent, due);
+      if (late > 0) { cls = 'bad'; st = 'ส่งเกินกำหนด ' + late + ' วันทำการ'; } else { cls = 'ontime'; st = 'ส่งทันกำหนด'; }
+      foot = 'ส่งแขวงเมื่อ ' + formatThaiDate(sent);
+    } else {
+      foot = 'นับ ' + SEND_LIMIT_DAYS + ' วันทำการจากวัน' + startLabel;
+      const left = DRAFTS.workLeft(today, due);
+      if (doneText) { cls = 'na'; st = doneText; }
+      else if (left < 0) { cls = 'bad'; st = 'เกินกำหนด ' + (-left) + ' วันทำการ'; }
+      else if (left <= 1) { cls = 'near'; st = left === 0 ? 'ครบกำหนดวันนี้' : 'เหลือ 1 วันทำการ'; }
+      else st = 'เหลือ ' + left + ' วันทำการ';
+    }
+  }
+  box.className = 'send-hero' + (cls ? ' ' + cls : '');
+  box.innerHTML = `<small>${head}</small><div class="big${due ? ' due' : ''}">${big}</div>`
+    + (st ? `<span class="sh-st">${escapeHtml(st)}</span>` : '') + `<small>${escapeHtml(foot)}</small>`;
+  document.getElementById('sendSub').textContent = start ? startLabel + 'เมื่อ ' + formatThaiDate(start) : '';
 }
 
 /* ----- ข้อความเตือนใต้ช่องวันที่ ----- */
@@ -4178,7 +4240,8 @@ function closeFormModal(){
 /* ปิดฟอร์มบันทึกเคส (ปุ่ม ✕ / ปุ่ม ยกเลิก): ถามยืนยันเฉพาะเมื่อผู้ใช้กรอกหรือแก้ข้อมูลจริง — ฟอร์มว่าง/ไม่ได้แก้อะไรปิดได้ทันที
    กล่องยืนยันเป็นของระบบเอง (ไม่ใช้ confirm() ของเบราว์เซอร์) กด Esc หรือคลิกฉากหลัง = กลับไปกรอกต่อ */
 let fmBase = '', fmEdited = false, fmFileEdited = false, fmWatching = false;
-function formSnapshot(){
+// ลายเซ็นค่าทุกช่องในฟอร์ม (ใช้เทียบว่าแก้แล้วหรือยัง) — ห้ามตั้งชื่อ formSnapshot ซ้ำ เพราะจะทับตัวอ่านค่าฟอร์มที่ใช้ตอนบันทึก
+function fmFormSig(){
   const m = document.getElementById('formModal');
   if (!m) return '';
   return Array.from(m.querySelectorAll('input,select,textarea')).map(e => {
@@ -4191,8 +4254,8 @@ function fmMarkOpened(){
   const m = document.getElementById('formModal');
   if (!m) return;
   fmStepsInit(); fmEdited = false; fmFileEdited = false;
-  fmBase = formSnapshot();
-  setTimeout(() => { if (!fmEdited) fmBase = formSnapshot(); }, 400); // ให้ช่องที่เติมอัตโนมัติหลังเปิดเสร็จก่อนจึงนับเป็นค่าตั้งต้น
+  fmBase = fmFormSig();
+  setTimeout(() => { if (!fmEdited) fmBase = fmFormSig(); }, 400); // ให้ช่องที่เติมอัตโนมัติหลังเปิดเสร็จก่อนจึงนับเป็นค่าตั้งต้น
   if (fmWatching) return;
   fmWatching = true;
   const mark = e => {
@@ -4204,7 +4267,7 @@ function fmMarkOpened(){
   m.addEventListener('change', mark, true);
 }
 function isFormDirty(){
-  return fmFileEdited || (fmEdited && formSnapshot() !== fmBase);
+  return fmFileEdited || (fmEdited && fmFormSig() !== fmBase);
 }
 function requestCloseForm(){
   if (!isFormDirty()) { clearForm(); return; }
@@ -4233,7 +4296,7 @@ function requestCloseForm(){
   document.getElementById('fmLeaveStay').focus();
 }
 /* แถบเส้นเวลา (ขั้นตอนฟอร์ม) — กดเลื่อนไปส่วนนั้น ไฮไลต์ตามตำแหน่งที่เลื่อน และบอกสถานะช่องบังคับของแต่ละส่วน */
-const FM_STEPS = [['fsec1', 'ประเภทงาน'], ['fsec2', 'ผู้ขอ'], ['fsec3', 'สถานที่'], ['fsec6', 'ผลพิจารณา']];
+const FM_STEPS = [['fsec1', 'ประเภทงาน'], ['fsec2', 'ผู้ขอ'], ['fsec3', 'สถานที่'], ['fsecSend', 'ส่งแขวง'], ['fsec6', 'ผลพิจารณา']];
 let fmStepsBuilt = false;
 function fmCards(){ return FM_STEPS.map(s => document.getElementById(s[0])); }
 function fmStepGo(i){
@@ -4679,6 +4742,11 @@ async function markNextStepToday(id){
 
 function initFormUi(){
   renderStepList();
+  // ช่องวันที่ส่งเอกสารไปแขวง: ย้ายช่องของขั้น "นำส่ง" (ส่วนขั้นตอนถูกซ่อน) มาไว้ในการ์ดผลการนำส่งเอกสาร — ยังเป็นช่องเดิม บันทึกค่าเดิม
+  const sentIn = document.getElementById('f_step_sentDate');
+  document.getElementById('sendSlot').replaceWith(sentIn);
+  sentIn.title = 'วันที่ส่งเอกสารถึงแขวง';
+  sentIn.addEventListener('change', refreshStepStates);
   // เลือกประเภทงาน / ลักษณะ / ประเภทผู้ขอ
   renderTypeGrid();
   initAddressFields();
