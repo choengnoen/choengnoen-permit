@@ -5152,10 +5152,11 @@ function openCaseDetailModal(id){
     const d = normalizeDateStr(rec[s.field]);
     const label = SHORT_STEP[s.field] || s.label;
     if (isCancelled(rec) && !d) return stepLi('n', label, 'ยกเลิก');
-    if (d) return stepLi('ok', label, escapeHtml(formatThaiDateFull(d)), (s.field === 'sentDate' && dl.key === 'late') ? escapeHtml(dl.text) : '');
+    if (d) return stepLi('ok', label, escapeHtml(formatThaiDateFull(d)));
     if (s.field === 'sentDate') {
-      if (dl.key === 'none') return stepLi('warn', label, 'รอเอกสารครบ');
-      return stepLi(dl.cls === 'bad' ? 'bad' : 'warn', label, escapeHtml(dl.text).replace(/(\d+ วันทำการ)/, '<span class="cd-nw">$1</span>'), dl.due ? 'กำหนด ' + escapeHtml(formatThaiDateFull(dl.due)) : '');
+      if (dl.key === 'none' || !dl.due) return stepLi('warn', label, 'รอเอกสารครบ');
+      // แสดงวันที่ต้องส่ง ไม่แสดงจำนวนวันทำการ — สีแดงบอกว่าเลยกำหนด
+      return stepLi(dl.cls === 'bad' ? 'bad' : 'warn', label, 'กำหนดส่ง ' + escapeHtml(formatThaiDateFull(dl.due)));
     }
     if (s.field === 'docCheckedDate') return stepLi('warn', label, escapeHtml(s.wait), dp.need ? 'เอกสาร ' + dp.have + '/' + dp.need : '');
     return stepLi('warn', label, escapeHtml(s.wait || 'ยังไม่ระบุ'));
