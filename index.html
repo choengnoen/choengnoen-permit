@@ -5144,22 +5144,24 @@ function openCaseDetailModal(id){
   // เส้นความคืบหน้า 7 ขั้น = 6 ขั้นตอนตาม STEPS + ผลพิจารณา
   //   เขียว ✓ = ทำแล้ว · ส้ม ! = ยังไม่ทำ · แดง ! = เลยกำหนดส่ง (3 วันทำการนับจากวันตรวจเอกสารครบ — ใช้ deadlineInfo เดิม) หรือไม่อนุญาต · เทา = ยกเลิก/ไม่ระบุ
   const SHORT_STEP = { dateReceived: 'รับเอกสาร', docCheckedDate: 'ตรวจเอกสาร', inspectedDate: 'ตรวจพื้นที่', memoDate: 'จัดทำบันทึก', signedDate: 'ลงนาม', sentDate: 'ส่งแขวง' };
+  // วันที่ในเส้นสถานะใช้แบบย่อ (25 ส.ค. 69) และห้ามตัดบรรทัดกลางวันที่
+  const sd = s => '<span class="cd-nw">' + escapeHtml(formatThaiDate(s)) + '</span>';
   const stepLi = (cls, label, sub, note) => `<li class="cd-st ${cls}"><span class="cd-dot">${cls === 'ok' ? '✓' : (cls === 'n' ? '–' : '!')}</span><b>${escapeHtml(label)}</b><span class="cd-ss">${sub}</span>${note ? `<span class="cd-sn">${note}</span>` : ''}</li>`;
   const progSteps = STEPS.map(s => {
     const d = normalizeDateStr(rec[s.field]);
     const label = SHORT_STEP[s.field] || s.label;
     if (isCancelled(rec) && !d) return stepLi('n', label, 'ยกเลิก');
-    if (d) return stepLi('ok', label, escapeHtml(formatThaiDateFull(d)));
+    if (d) return stepLi('ok', label, sd(d));
     if (s.field === 'sentDate') {
       if (dl.key === 'none' || !dl.due) return stepLi('warn', label, 'รอเอกสารครบ');
       // แสดงวันที่ต้องส่ง ไม่แสดงจำนวนวันทำการ — สีแดงบอกว่าเลยกำหนด
-      return stepLi(dl.cls === 'bad' ? 'bad' : 'warn', label, 'กำหนดส่ง ' + escapeHtml(formatThaiDateFull(dl.due)));
+      return stepLi(dl.cls === 'bad' ? 'bad' : 'warn', label, 'กำหนดส่ง ' + sd(dl.due));
     }
     if (s.field === 'docCheckedDate') return stepLi('warn', label, escapeHtml(s.wait), dp.need ? 'เอกสาร ' + dp.have + '/' + dp.need : '');
     return stepLi('warn', label, escapeHtml(s.wait || 'ยังไม่ระบุ'));
   }).join('');
-  const resultStep = rec.result === 'อนุญาต' ? stepLi('ok', 'ผลพิจารณา', 'อนุญาต' + (rec.resultDate ? ' ' + escapeHtml(formatThaiDateFull(rec.resultDate)) : ''))
-    : rec.result === 'ไม่อนุญาต' ? stepLi('bad', 'ผลพิจารณา', 'ไม่อนุญาต' + (rec.resultDate ? ' ' + escapeHtml(formatThaiDateFull(rec.resultDate)) : ''))
+  const resultStep = rec.result === 'อนุญาต' ? stepLi('ok', 'ผลพิจารณา', 'อนุญาต' + (rec.resultDate ? ' ' + sd(rec.resultDate) : ''))
+    : rec.result === 'ไม่อนุญาต' ? stepLi('bad', 'ผลพิจารณา', 'ไม่อนุญาต' + (rec.resultDate ? ' ' + sd(rec.resultDate) : ''))
     : isCancelled(rec) ? stepLi('n', 'ผลพิจารณา', 'ยกเลิก/ถอนเรื่อง')
     : stepLi('warn', 'ผลพิจารณา', 'รอผลพิจารณา');
   const tilesHtml = `${issuesBoxHtml(rec)}<div class="cd-prog">
