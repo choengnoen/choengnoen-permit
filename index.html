@@ -1371,7 +1371,7 @@ tr.route-editable:hover td{background:var(--amber-glow)}
   </nav>
   <div class="header-export" id="headerExport" style="display:none">
     <button type="button" class="hx-btn" id="btnExportXlsx">⬇ Excel</button>
-    <button type="button" class="hx-btn" id="btnExportPdf">🖨 PDF</button>
+    <button type="button" class="hx-btn" id="btnExportPdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:5px"><path d="M6 9V3h12v6"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>PDF</button>
     <div class="export-menu" id="exportMenu" style="display:none"></div>
   </div>
   </div>
@@ -5246,7 +5246,7 @@ function openCaseDetailModal(id){
         </div>
         <div class="cd-foot">
           <button class="btn btn-danger" id="caseDetailDelete" style="margin-right:auto">ลบ</button>
-          <button class="btn btn-outline" id="caseDetailPrint" title="พิมพ์ใบปะหน้าเรื่อง + เช็กลิสต์เอกสาร">🖨 ใบปะหน้า</button>
+          <button class="btn btn-outline" id="caseDetailPrint" title="พิมพ์ใบปะหน้าเรื่อง + เช็กลิสต์เอกสาร"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.15em;height:1.15em;flex:none"><path d="M6 9V3h12v6"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>ใบปะหน้า</button>
           ${nextBtn}
           <button class="btn btn-outline" id="caseDetailClose">ปิด</button>
           <button class="btn btn-primary" id="caseDetailEdit">แก้ไข</button>
@@ -5577,7 +5577,7 @@ function renderGuide(){
     <div class="cd-card" style="margin:14px 0 0">
       <div class="cd-sec" style="justify-content:space-between;flex-wrap:wrap">
         <span style="display:flex;align-items:center;gap:8px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--amber-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><path d="${GUIDE_TAB_ICONS[t.key] || ''}"/></svg>${escapeHtml(t.no + ' ' + t.label)}</span>
-        <span style="display:flex;gap:6px"><button type="button" class="btn btn-outline btn-sm" data-handout="${t.key}">🖨 พิมพ์ให้ผู้ขอ</button></span>
+        <span style="display:flex;gap:6px"><button type="button" class="btn btn-outline btn-sm" data-handout="${t.key}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.15em;height:1.15em;flex:none"><path d="M6 9V3h12v6"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>พิมพ์ให้ผู้ขอ</button></span>
       </div>
       ${t.subs.length ? `<div class="hint" style="margin:-4px 0 0">${escapeHtml(t.subLabel)}: ${t.subs.map(escapeHtml).join(' · ')}</div>` : ''}
       <div class="gd-panel"><h3>📋 รายละเอียดการปฏิบัติงาน</h3>
